@@ -27,6 +27,7 @@ import {
   verifyConfirmPassword,
   verifyPhoneNumber,
 } from "../utils/formValidation";
+import { useTailwind } from "tailwindcss-react-native";
 
 LogBox.ignoreLogs(["Unsupported"]);
 
@@ -62,6 +63,7 @@ const RegisterScreen = () => {
   const { register } = useAuth();
 
   const navigation = useNavigation();
+  const tw = useTailwind();
 
   return (
     <View className="flex-1">
@@ -88,15 +90,17 @@ const RegisterScreen = () => {
               <View className="flex flex-row mt-8">
                 <View className="flex-1 flex-row items-center border-b border-[#B8B8B8] pb-1 mr-3">
                   <UserIcon
-                    className={`self-end text-gray-400 ${
-                      checkFirstName === true &&
-                      firstName !== "" &&
-                      "text-green-600"
-                    } ${
-                      checkFirstName === false &&
-                      firstName !== "" &&
-                      "text-red-600"
-                    }`}
+                    style={tw(
+                      `self-end text-gray-400 ${
+                        checkFirstName === true &&
+                        firstName !== "" &&
+                        "text-green-600"
+                      } ${
+                        checkFirstName === false &&
+                        firstName !== "" &&
+                        "text-red-600"
+                      }`
+                    )}
                   />
                   <TextInput
                     value={firstName}
@@ -115,15 +119,17 @@ const RegisterScreen = () => {
 
                 <View className="flex-1 flex-row items-center border-b border-[#B8B8B8] pb-1">
                   <UserIcon
-                    className={`self-end text-gray-400 ${
-                      checkLastName === true &&
-                      lastName !== "" &&
-                      "text-green-600"
-                    } ${
-                      checkLastName === false &&
-                      lastName !== "" &&
-                      "text-red-600"
-                    }`}
+                    style={tw(
+                      `self-end text-gray-400 ${
+                        checkLastName === true &&
+                        lastName !== "" &&
+                        "text-green-600"
+                      } ${
+                        checkLastName === false &&
+                        lastName !== "" &&
+                        "text-red-600"
+                      }`
+                    )}
                   />
                   <TextInput
                     value={lastName}
@@ -143,9 +149,11 @@ const RegisterScreen = () => {
 
               <View className="flex flex-row items-center border-b border-[#B8B8B8] pb-1 mt-8">
                 <AtSymbolIcon
-                  className={`self-end text-gray-400 ${
-                    checkEmail === true && email !== "" && "text-green-600"
-                  } ${checkEmail === false && email !== "" && "text-red-600"}`}
+                  style={tw(
+                    `self-end text-gray-400 ${
+                      checkEmail === true && email !== "" && "text-green-600"
+                    } ${checkEmail === false && email !== "" && "text-red-600"}`
+                  )}
                 />
                 <TextInput
                   value={email}
@@ -174,15 +182,17 @@ const RegisterScreen = () => {
 
                 <View className="flex flex-row items-center border-b border-[#B8B8B8] pb-1">
                   <LockClosedIcon
-                    className={`self-end text-gray-400 ${
-                      checkPassword === true &&
-                      password !== "" &&
-                      "text-green-600"
-                    } ${
-                      checkPassword === false &&
-                      password !== "" &&
-                      "text-red-600"
-                    }`}
+                    style={tw(
+                      `self-end text-gray-400 ${
+                        checkPassword === true &&
+                        password !== "" &&
+                        "text-green-600"
+                      } ${
+                        checkPassword === false &&
+                        password !== "" &&
+                        "text-red-600"
+                      }`
+                    )}
                   />
                   <TextInput
                     value={password}
@@ -213,15 +223,17 @@ const RegisterScreen = () => {
                 </Text>
                 <View className="flex flex-row items-center border-b border-[#B8B8B8] pb-1">
                   <LockClosedIcon
-                    className={`self-end text-gray-400 ${
-                      checkConfirmPassword === true &&
-                      confirmPassword !== "" &&
-                      "text-green-600"
-                    } ${
-                      checkConfirmPassword === false &&
-                      confirmPassword !== "" &&
-                      "text-red-600"
-                    }`}
+                    style={tw(
+                      `self-end text-gray-400 ${
+                        checkConfirmPassword === true &&
+                        confirmPassword !== "" &&
+                        "text-green-600"
+                      } ${
+                        checkConfirmPassword === false &&
+                        confirmPassword !== "" &&
+                        "text-red-600"
+                      }`
+                    )}
                   />
                   <TextInput
                     value={confirmPassword}
@@ -246,15 +258,17 @@ const RegisterScreen = () => {
 
               <View className="flex flex-row items-center border-b border-[#B8B8B8] pb-1 mt-8">
                 <PhoneIcon
-                  className={`self-end text-gray-400 ${
-                    checkPhoneNumber === true &&
-                    phoneNumber !== "" &&
-                    "text-green-600"
-                  } ${
-                    checkPhoneNumber === false &&
-                    phoneNumber !== "" &&
-                    "text-red-600"
-                  }`}
+                  style={tw(
+                    `self-end text-gray-400 ${
+                      checkPhoneNumber === true &&
+                      phoneNumber !== "" &&
+                      "text-green-600"
+                    } ${
+                      checkPhoneNumber === false &&
+                      phoneNumber !== "" &&
+                      "text-red-600"
+                    }`
+                  )}
                 />
                 <TextInput
                   value={phoneNumber}

@@ -14,7 +14,7 @@ import { StatusBar } from "expo-status-bar";
 import { AtSymbolIcon, LockClosedIcon } from "react-native-heroicons/outline";
 import { useNavigation } from "@react-navigation/native";
 import useAuth from "../hooks/useAuth";
-import { useTailwind } from "tailwindcss-react-native";
+import colors from "tailwindcss/colors";
 
 const LoginScreen = () => {
   const [email, setEmail] = useState("");
@@ -22,7 +22,6 @@ const LoginScreen = () => {
 
   const { login, loading } = useAuth();
 
-  const tw = useTailwind();
   const navigation = useNavigation();
   return (
     <KeyboardAvoidingView
@@ -43,7 +42,7 @@ const LoginScreen = () => {
             </View>
 
             <View className="flex flex-row items-center border-b border-[#B8B8B8] pb-1 mt-8">
-              <AtSymbolIcon style={tw("text-blue-500")} />
+              <AtSymbolIcon color={colors.blue["500"]} />
               <TextInput
                 value={email}
                 onChangeText={(text) => setEmail(text)}
@@ -54,7 +53,7 @@ const LoginScreen = () => {
             </View>
 
             <View className="flex flex-row items-center border-b border-[#B8B8B8] pb-1 mt-8">
-              <LockClosedIcon style={tw("text-blue-500")} />
+              <LockClosedIcon color={colors.blue["500"]} />
               <TextInput
                 value={password}
                 onChangeText={(text) => setPassword(text)}
