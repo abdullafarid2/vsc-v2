@@ -5,11 +5,11 @@ const bcrypt = require("bcrypt");
 const { isAuth, isAdmin } = require("./authMiddleware");
 
 router.post(
-    "/login",
-    passport.authenticate("local", {
-      failureRedirect: "/login-failure",
-      successRedirect: "/login-success",
-    })
+  "/login",
+  passport.authenticate("local", {
+    failureRedirect: "/login-failure",
+    successRedirect: "/login-success",
+  })
 );
 
 router.post("/register", async (req, res, next) => {
@@ -30,8 +30,8 @@ router.post("/register", async (req, res, next) => {
     const bcryptPassword = await bcrypt.hash(password, salt);
 
     const newUser = await db.query(
-        "INSERT INTO users (first_name, last_name, email, password, phone_number) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-        [firstName, lastName, lowerCaseEmail, bcryptPassword, phoneNumber]
+      "INSERT INTO users (first_name, last_name, email, password, phone_number) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+      [firstName, lastName, lowerCaseEmail, bcryptPassword, phoneNumber]
     );
 
     res.json(true);
@@ -133,22 +133,22 @@ router.post("/createShop", async (req, res) => {
     };
 
     const query = await db.query(
-        "INSERT INTO shops (address, category, cr, description, email, phone, name, owner_id, logo, cover, status, delivery, subcategories ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING *;",
-        [
-          address,
-          category,
-          cr,
-          description,
-          email,
-          phoneNumber,
-          shopName,
-          owner,
-          logo,
-          cover,
-          status,
-          true,
-          ["TEST"],
-        ]
+      "INSERT INTO shops (address, category, cr, description, email, phone, name, owner_id, logo, cover, status, delivery, subcategories ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING *;",
+      [
+        address,
+        category,
+        cr,
+        description,
+        email,
+        phoneNumber,
+        shopName,
+        owner,
+        logo,
+        cover,
+        status,
+        true,
+        ["TEST"],
+      ]
     );
 
     if (query.rows.length === 0) res.json(false);
@@ -164,8 +164,8 @@ router.post("/editUserInfo", async (req, res, next) => {
     const { firstName, lastName, email, phoneNumber } = req.body;
 
     const result = await db.query(
-        "UPDATE users SET first_name = $1, last_name = $2, email = $3, phone_number = $4 WHERE id = $5 RETURNING *;",
-        [firstName, lastName, email, phoneNumber * 1, req.user.id]
+      "UPDATE users SET first_name = $1, last_name = $2, email = $3, phone_number = $4 WHERE id = $5 RETURNING *;",
+      [firstName, lastName, email, phoneNumber * 1, req.user.id]
     );
 
     req.user = result.rows[0];
@@ -180,8 +180,8 @@ router.post("/editUserInfo", async (req, res, next) => {
 router.get("/addresses", async (req, res, next) => {
   try {
     const addresses = await db.query(
-        "SELECT address FROM users WHERE id = $1;",
-        [req.user.id]
+      "SELECT address FROM users WHERE id = $1;",
+      [req.user.id]
     );
 
     if (addresses.rows.length === 0) res.json(false);
@@ -195,7 +195,7 @@ router.get("/addresses", async (req, res, next) => {
 router.put("/updateAddress", async (req, res, next) => {
   try {
     const { name, area, road, block, building, flat, location, index } =
-        req.body;
+      req.body;
 
     const newAddress = {
       name,
@@ -209,15 +209,15 @@ router.put("/updateAddress", async (req, res, next) => {
     };
 
     const addresses = await db.query(
-        "SELECT address FROM users WHERE id = $1;",
-        [req.user.id]
+      "SELECT address FROM users WHERE id = $1;",
+      [req.user.id]
     );
 
     addresses.rows[0].address[index] = newAddress;
 
     const updatedAddress = await db.query(
-        "UPDATE users SET address = $1 WHERE id = $2 RETURNING *;",
-        [addresses.rows[0].address, req.user.id]
+      "UPDATE users SET address = $1 WHERE id = $2 RETURNING *;",
+      [addresses.rows[0].address, req.user.id]
     );
 
     req.user = updatedAddress.rows[0];
@@ -232,7 +232,7 @@ router.put("/updateAddress", async (req, res, next) => {
 router.post("/addAddress", async (req, res, next) => {
   try {
     const { name, area, road, block, building, flat, longitude, latitude } =
-        req.body;
+      req.body;
 
     const newAddress = {
       name,
@@ -246,8 +246,8 @@ router.post("/addAddress", async (req, res, next) => {
     };
 
     const addresses = await db.query(
-        "SELECT address FROM users WHERE id = $1;",
-        [req.user.id]
+      "SELECT address FROM users WHERE id = $1;",
+      [req.user.id]
     );
 
     if (addresses.rows[0].address === null) {
@@ -257,8 +257,8 @@ router.post("/addAddress", async (req, res, next) => {
     }
 
     const updatedAddress = await db.query(
-        "UPDATE users SET address = $1 WHERE id = $2 RETURNING *;",
-        [addresses.rows[0].address, req.user.id]
+      "UPDATE users SET address = $1 WHERE id = $2 RETURNING *;",
+      [addresses.rows[0].address, req.user.id]
     );
 
     req.user = updatedAddress.rows[0];
@@ -275,8 +275,8 @@ router.put("/deleteAddress", async (req, res) => {
     const { id } = req.body;
 
     const addresses = await db.query(
-        "SELECT address FROM users WHERE id = $1;",
-        [req.user.id]
+      "SELECT address FROM users WHERE id = $1;",
+      [req.user.id]
     );
 
     if (addresses.rows[0].address.length === 0) res.json(false);
@@ -284,8 +284,8 @@ router.put("/deleteAddress", async (req, res) => {
     addresses.rows[0].address.splice(id, 1);
 
     const updatedAddress = await db.query(
-        "UPDATE users SET address = $1 WHERE id = $2 RETURNING *;",
-        [addresses.rows[0].address, req.user.id]
+      "UPDATE users SET address = $1 WHERE id = $2 RETURNING *;",
+      [addresses.rows[0].address, req.user.id]
     );
 
     req.user = updatedAddress.rows[0];
@@ -309,8 +309,8 @@ router.put("/changePassword", async (req, res) => {
       const bcryptPassword = await bcrypt.hash(newPassword, salt);
 
       const updatedUser = await db.query(
-          "UPDATE users SET password = $1 WHERE id = $2 RETURNING *",
-          [bcryptPassword, req.user.id]
+        "UPDATE users SET password = $1 WHERE id = $2 RETURNING *",
+        [bcryptPassword, req.user.id]
       );
 
       req.user = updatedUser.rows[0];

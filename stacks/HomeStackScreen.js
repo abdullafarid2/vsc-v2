@@ -1,9 +1,9 @@
 import { View, Text } from "react-native";
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-// import HomeScreen from "../screens/HomeScreen";
+import HomeScreen from "../screens/HomeScreen";
 // import AccountScreen from "../screens/AccountScreen";
-// import SearchShopScreen from "../screens/SearchShopScreen";
+import SearchShopScreen from "../screens/SearchShopScreen";
 // import AccountDetailsScreen from "../screens/AccountDetailsScreen";
 // import UserOrdersScreen from "../screens/UserOrdersScreen";
 // import UserAddressesScreen from "../screens/UserAddressesScreen";
@@ -12,8 +12,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 // import SelectAreaScreen from "../screens/SelectAreaScreen";
 // import CreateAddressScreen from "../screens/CreateAddressScreen";
 // import CategoryScreen from "../screens/CategoryScreen";
-// import { useTailwind } from "tailwind-rn/dist";
-// import ShopScreen from "../screens/ShopScreen";
+import ShopScreen from "../screens/ShopScreen";
 
 const HomeStack = createNativeStackNavigator();
 
@@ -30,44 +29,44 @@ const HomeStackScreen = () => {
         />
       </HomeStack.Group>
 
-      <HomeStack.Group
-        screenOptions={{
-          headerStyle: "bg-blue-500",
-          headerTintColor: "#FFFFFF",
-          headerTitle: "",
-        }}
-      >
-        <HomeStack.Screen name="Account" component={AccountScreen} />
-        <HomeStack.Screen
-          name="AccountDetails"
-          component={AccountDetailsScreen}
-        />
-        <HomeStack.Screen name="UserOrders" component={UserOrdersScreen} />
-        <HomeStack.Screen
-          name="UserAddresses"
-          component={UserAddressesScreen}
-        />
-        <HomeStack.Screen
-          name="ChangePassword"
-          component={ChangePasswordScreen}
-        />
-        <HomeStack.Screen name="EditAddress" component={EditAddressScreen} />
-        <HomeStack.Screen name="SelectArea" component={SelectAreaScreen} />
-        <HomeStack.Screen
-          name="CreateAddress"
-          component={CreateAddressScreen}
-        />
-      </HomeStack.Group>
+      {/*<HomeStack.Group*/}
+      {/*  screenOptions={{*/}
+      {/*    headerStyle: "bg-blue-500",*/}
+      {/*    headerTintColor: "#FFFFFF",*/}
+      {/*    headerTitle: "",*/}
+      {/*  }}*/}
+      {/*>*/}
+      {/*  <HomeStack.Screen name="Account" component={AccountScreen} />*/}
+      {/*  <HomeStack.Screen*/}
+      {/*    name="AccountDetails"*/}
+      {/*    component={AccountDetailsScreen}*/}
+      {/*  />*/}
+      {/*  <HomeStack.Screen name="UserOrders" component={UserOrdersScreen} />*/}
+      {/*  <HomeStack.Screen*/}
+      {/*    name="UserAddresses"*/}
+      {/*    component={UserAddressesScreen}*/}
+      {/*  />*/}
+      {/*  <HomeStack.Screen*/}
+      {/*    name="ChangePassword"*/}
+      {/*    component={ChangePasswordScreen}*/}
+      {/*  />*/}
+      {/*  <HomeStack.Screen name="EditAddress" component={EditAddressScreen} />*/}
+      {/*  <HomeStack.Screen name="SelectArea" component={SelectAreaScreen} />*/}
+      {/*  <HomeStack.Screen*/}
+      {/*    name="CreateAddress"*/}
+      {/*    component={CreateAddressScreen}*/}
+      {/*  />*/}
+      {/*</HomeStack.Group>*/}
 
-      <HomeStack.Group
-        screenOptions={{
-          headerStyle: "bg-blue-500",
-          headerTintColor: "#FFFFFF",
-          headerTitle: "",
-        }}
-      >
-        <HomeStack.Screen name="Category" component={CategoryScreen} />
-      </HomeStack.Group>
+      {/*<HomeStack.Group*/}
+      {/*  screenOptions={{*/}
+      {/*    headerStyle: "bg-blue-500",*/}
+      {/*    headerTintColor: "#FFFFFF",*/}
+      {/*    headerTitle: "",*/}
+      {/*  }}*/}
+      {/*>*/}
+      {/*  <HomeStack.Screen name="Category" component={CategoryScreen} />*/}
+      {/*</HomeStack.Group>*/}
     </HomeStack.Navigator>
   );
 };
