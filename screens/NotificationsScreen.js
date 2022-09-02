@@ -4,7 +4,7 @@ import React from "react";
 const NotificationsScreen = () => {
   return (
     <View>
-      <Text>NotificationsScreen</Text>
+      <Text>Notifications Screen</Text>
     </View>
   );
 };
