@@ -57,7 +57,7 @@ export const AuthProvider = ({ children }) => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          username: email,
+          username: email.toLowerCase(),
           password: password,
         }),
       });

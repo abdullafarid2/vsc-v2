@@ -60,6 +60,7 @@ const LoginScreen = () => {
                 onChangeText={(text) => setPassword(text)}
                 placeholder="Password"
                 textContentType="password"
+                autoCapitalize='none'
                 secureTextEntry
                 className="flex-1 flex-wrap ml-5 text-lg h-9"
                 editable={!loading}
