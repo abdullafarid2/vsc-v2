@@ -47,6 +47,7 @@ const LoginScreen = () => {
                 value={email}
                 onChangeText={(text) => setEmail(text)}
                 placeholder="Email Address"
+                autoCapitalize='none'
                 className="flex-1 flex-wrap ml-5 text-lg h-9"
                 editable={!loading}
               />
