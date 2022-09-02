@@ -1,7 +1,5 @@
-import { View, Text } from "react-native";
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { useTailwind } from "tailwind-rn/dist";
 import UserShopsScreen from "../screens/UserShopsScreen";
 import CreateShop from "../screens/CreateShopScreen";
 import CreateShop2 from "../screens/CreateShopScreen2";
@@ -12,8 +10,6 @@ import ShopScreen from "../screens/ShopScreen";
 const UserShopsStack = createNativeStackNavigator();
 
 const UserShopsStackScreen = () => {
-  const tw = useTailwind();
-
   return (
     <UserShopsStack.Navigator>
       <UserShopsStack.Group screenOptions={{ headerShown: false }}>

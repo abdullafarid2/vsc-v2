@@ -87,64 +87,62 @@ const RegisterScreen = () => {
                 <Text className="text-black font-bold text-3xl">Register</Text>
               </View>
 
-              <View className="flex flex-row mt-8">
-                <View className="flex-1 flex-row items-center border-b border-[#B8B8B8] pb-1 mr-3">
-                  <UserIcon
-                    style={tw(
-                      `self-end text-gray-400 ${
-                        checkFirstName === true &&
-                        firstName !== "" &&
-                        "text-green-600"
-                      } ${
-                        checkFirstName === false &&
-                        firstName !== "" &&
-                        "text-red-600"
-                      }`
-                    )}
-                  />
-                  <TextInput
-                    value={firstName}
-                    onChangeText={(text) => {
-                      setFirstName(text);
-                      setCheckFirstName(verifyName(text));
-                    }}
-                    onFocus={() => {}}
-                    placeholder="First Name"
-                    className="flex-1 flex-wrap ml-5 text-lg h-9"
-                    returnKeyType="next"
-                    returnKeyLabel="next"
-                    onSubmitEditing={() => lastNameInput.current.focus()}
-                  />
-                </View>
+              <View className="flex flex-row items-center border-b border-[#B8B8B8] pb-1 mt-8">
+                <UserIcon
+                  style={tw(
+                    `self-end text-gray-400 ${
+                      checkFirstName === true &&
+                      firstName !== "" &&
+                      "text-green-600"
+                    } ${
+                      checkFirstName === false &&
+                      firstName !== "" &&
+                      "text-red-600"
+                    }`
+                  )}
+                />
+                <TextInput
+                  value={firstName}
+                  onChangeText={(text) => {
+                    setFirstName(text);
+                    setCheckFirstName(verifyName(text));
+                  }}
+                  onFocus={() => {}}
+                  placeholder="First Name"
+                  className="flex-1 flex-wrap ml-5 text-lg h-9"
+                  returnKeyType="next"
+                  returnKeyLabel="next"
+                  onSubmitEditing={() => lastNameInput.current.focus()}
+                />
+              </View>
 
-                <View className="flex-1 flex-row items-center border-b border-[#B8B8B8] pb-1">
-                  <UserIcon
-                    style={tw(
-                      `self-end text-gray-400 ${
-                        checkLastName === true &&
-                        lastName !== "" &&
-                        "text-green-600"
-                      } ${
-                        checkLastName === false &&
-                        lastName !== "" &&
-                        "text-red-600"
-                      }`
-                    )}
-                  />
-                  <TextInput
-                    value={lastName}
-                    onChangeText={(text) => {
-                      setLastName(text);
-                      setCheckLastName(verifyName(text));
-                    }}
-                    placeholder="Last Name"
-                    className="flex-1 flex-wrap ml-5 text-lg h-9"
-                    ref={lastNameInput}
-                    returnKeyType="next"
-                    returnKeyLabel="next"
-                    onSubmitEditing={() => emailInput.current.focus()}
-                  />
-                </View>
+              <View className="flex flex-row items-center border-b border-[#B8B8B8] pb-1 mt-8">
+                <UserIcon
+                  style={tw(
+                    `self-end text-gray-400 ${
+                      checkLastName === true &&
+                      lastName !== "" &&
+                      "text-green-600"
+                    } ${
+                      checkLastName === false &&
+                      lastName !== "" &&
+                      "text-red-600"
+                    }`
+                  )}
+                />
+                <TextInput
+                  value={lastName}
+                  onChangeText={(text) => {
+                    setLastName(text);
+                    setCheckLastName(verifyName(text));
+                  }}
+                  placeholder="Last Name"
+                  className="flex-1 flex-wrap ml-5 text-lg h-9"
+                  ref={lastNameInput}
+                  returnKeyType="next"
+                  returnKeyLabel="next"
+                  onSubmitEditing={() => emailInput.current.focus()}
+                />
               </View>
 
               <View className="flex flex-row items-center border-b border-[#B8B8B8] pb-1 mt-8">
@@ -297,7 +295,7 @@ const RegisterScreen = () => {
                   Register
                 </Text>
               </TouchableOpacity>
-              <View className="flex flex-row justify-center mt-7">
+              <View className="flex flex-row mt-4">
                 <Text className="text-lg">Already have an account?</Text>
                 <TouchableOpacity onPress={() => navigation.navigate("Login")}>
                   <Text className="font-semibold text-lg text-blue-500">
