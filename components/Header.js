@@ -8,13 +8,7 @@ const Header = () => {
   const tw = useTailwind();
   const navigation = useNavigation();
   return (
-    <View
-      style={tw(
-        `flex flex-row px-3 py-3 w-full bg-blue-500 ${
-          Platform.OS === "android" && "pt-10"
-        }`
-      )}
-    >
+    <View style={tw(`flex flex-row px-3 py-3 w-full bg-blue-500 pt-5`)}>
       <TouchableOpacity onPress={() => navigation.goBack()}>
         <ArrowLeftIcon style={tw("text-white")} />
       </TouchableOpacity>

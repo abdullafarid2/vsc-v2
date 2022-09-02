@@ -48,13 +48,13 @@ const ShopTitle = ({ logo, shopName, subcategories, rating }) => {
         </TouchableOpacity>
       </View>
 
-      <View className="mt-2">
+      <View className="mt-1">
         <TouchableOpacity>
           <Text className="text-blue-500 font-bold mt-1">Send Message</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity className="mt-5">
-          <Text className="text-blue-500 font-bold mt-1">Reviews</Text>
+        <TouchableOpacity className="flex-1 mt-5">
+          <Text className="text-blue-500 font-bold mt-1 self-end">Reviews</Text>
         </TouchableOpacity>
       </View>
     </View>
