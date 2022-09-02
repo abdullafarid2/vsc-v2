@@ -43,7 +43,7 @@ const UserAddressesScreen = () => {
           <TouchableOpacity
             onPress={() => navigation.navigate("CreateAddress")}
           >
-            <PlusIcon size={28} className="text-white" />
+            <PlusIcon size={28} style={tw("text-white")} />
           </TouchableOpacity>
         </View>
       </View>
