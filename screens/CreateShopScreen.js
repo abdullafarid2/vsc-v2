@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
 import {
+  FlatList,
   KeyboardAvoidingView,
+  Modal,
   Platform,
+  Pressable,
   SafeAreaView,
   ScrollView,
   Text,
@@ -12,8 +15,12 @@ import {
 import Header from "../components/Header";
 import useAuth from "../hooks/useAuth";
 import { useNavigation } from "@react-navigation/native";
+import { CheckIcon } from "react-native-heroicons/outline";
+import { useTailwind } from "tailwindcss-react-native";
+import SelectListModal from "../components/SelectListModal";
 
 const CreateShop = () => {
+  const tw = useTailwind();
   const navigation = useNavigation();
   const { url } = useAuth();
 
@@ -23,8 +30,9 @@ const CreateShop = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
-
   const [categories, setCategories] = useState([]);
+
+  const [modalVisible, setModalVisible] = useState(false);
 
   const getCategories = async () => {
     try {
@@ -48,6 +56,14 @@ const CreateShop = () => {
     <SafeAreaView className="flex-1 bg-blue-500">
       <Header />
       <View className="flex-1 px-3 bg-white pt-3">
+        <SelectListModal
+          title="Category"
+          selected={category}
+          data={categories}
+          setModalVisible={setModalVisible}
+          modalVisible={modalVisible}
+          setSelect={setCategory}
+        />
         <KeyboardAvoidingView
           className="flex-1"
           behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -126,21 +142,18 @@ const CreateShop = () => {
 
             <View className="mt-6">
               <Text className="text-lg font-semibold">Category</Text>
-              {/*<Picker*/}
-              {/*  selectedValue={category}*/}
-              {/*  onValueChange={(category) => setCategory(category)}*/}
-              {/*  className="border rounded-lg border-gray-400 mt-2"*/}
-              {/*>*/}
-              {/*  <Picker.Item label="" value="" />*/}
-              {/*  {categories.length > 0 &&*/}
-              {/*    categories.map((category, i) => (*/}
-              {/*      <Picker.Item*/}
-              {/*        key={i}*/}
-              {/*        label={category.name}*/}
-              {/*        value={category.id}*/}
-              {/*      />*/}
-              {/*    ))}*/}
-              {/*</Picker>*/}
+              <View className="flex flex-row mt-2 border-b border-gray-400">
+                <Text className="flex-1">
+                  {category || "No category selected"}
+                </Text>
+                <TouchableOpacity
+                  onPress={() => setModalVisible(!modalVisible)}
+                >
+                  <Text className="text-blue-500 text-lg font-semibold">
+                    Select
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
 
             <TouchableOpacity

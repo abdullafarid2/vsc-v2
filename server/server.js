@@ -34,14 +34,6 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-// app.use((req, res, next) => {
-//   console.log(req.session); // created by express session
-//   console.log(req.user); // created by passport middleware
-//   next();
-// });
-
-// Routes
-
 app.use(routes);
 
 const port = process.env.PORT || 3000;

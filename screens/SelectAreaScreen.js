@@ -17,8 +17,8 @@ const SelectAreaScreen = () => {
 
       <FlatList
         data={areas}
-        renderItem={({ item }) => <AreaRow value={item.value} id={id} />}
-        keyExtractor={(item) => item.label}
+        renderItem={({ item }) => <AreaRow value={item.name} id={id} />}
+        keyExtractor={(item) => item.id}
         className="mt-4"
       />
     </View>

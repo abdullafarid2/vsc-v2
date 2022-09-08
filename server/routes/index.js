@@ -272,6 +272,7 @@ router.post("/addAddress", async (req, res, next) => {
 
 router.put("/deleteAddress", async (req, res) => {
   try {
+    console.log(req.user);
     const { id } = req.body;
 
     const addresses = await db.query(
@@ -340,6 +341,7 @@ router.get("/logout", (req, res, next) => {
 });
 
 router.get("/is-authenticated", async (req, res, next) => {
+  console.log(req.user);
   if (req.isAuthenticated()) {
     try {
       const user = await db.query("SELECT * FROM users WHERE id = $1;", [

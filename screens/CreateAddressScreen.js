@@ -1,10 +1,17 @@
-import { View, Text, TextInput, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  ScrollView,
+  TouchableOpacity,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import useAuth from "../hooks/useAuth";
 import Toast from "react-native-toast-message";
 import Map from "../components/Map";
 import { areas } from "../utils/areas";
+import SelectListModal from "../components/SelectListModal";
 
 const CreateAddressScreen = () => {
   const navigation = useNavigation();
@@ -17,8 +24,9 @@ const CreateAddressScreen = () => {
   const [block, setBlock] = useState("");
   const [building, setBuilding] = useState("");
   const [flat, setFlat] = useState(null);
-
   const [location, setLocation] = useState({});
+
+  const [modalVisible, setModalVisible] = useState(false);
 
   const valid =
     addressName !== "" &&
@@ -76,6 +84,14 @@ const CreateAddressScreen = () => {
   return (
     <View className="flex-1 bg-white">
       <View className="flex-1 bg-white px-3 mt-4">
+        <SelectListModal
+          title="Area"
+          selected={area}
+          data={areas}
+          setModalVisible={setModalVisible}
+          modalVisible={modalVisible}
+          setSelect={setArea}
+        />
         <ScrollView>
           <Text className="text-xl font-bold">New Address</Text>
           <View className="flex-1 mt-4">
@@ -89,22 +105,17 @@ const CreateAddressScreen = () => {
               />
             </View>
 
-            <View className="mt-3">
+            <View className="mt-6">
               <Text className="text-lg font-semibold">Area</Text>
-              <View className="border border-gray-200 mt-2">
-                {/*<Picker*/}
-                {/*  selectedValue={area}*/}
-                {/*  onValueChange={(area, itemIndex) => setArea(area)}*/}
-                {/*>*/}
-                {/*  <Picker.Item label="Select Area" value="" />*/}
-                {/*  {areas.map((area, i) => (*/}
-                {/*    <Picker.Item*/}
-                {/*      key={i}*/}
-                {/*      label={area.label}*/}
-                {/*      value={area.value}*/}
-                {/*    />*/}
-                {/*  ))}*/}
-                {/*</Picker>*/}
+              <View className="flex flex-row mt-2 border-b border-gray-400">
+                <Text className="flex-1">{area || "No area selected"}</Text>
+                <TouchableOpacity
+                  onPress={() => setModalVisible(!modalVisible)}
+                >
+                  <Text className="text-blue-500 text-lg font-semibold">
+                    Select
+                  </Text>
+                </TouchableOpacity>
               </View>
             </View>
 
@@ -158,7 +169,7 @@ const CreateAddressScreen = () => {
               />
             </View>
 
-            <View className="h-96 mt-3">
+            <View className="h-full mt-3">
               <Text className="text-lg font-semibold mb-3">Location</Text>
               <Map
                 longitude={50.5646}

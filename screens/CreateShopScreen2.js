@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import {
+  FlatList,
+  Modal,
   SafeAreaView,
   ScrollView,
   Text,
@@ -12,6 +14,8 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import { areas } from "../utils/areas";
 import MapView, { Marker } from "react-native-maps";
 import { useTailwind } from "tailwindcss-react-native";
+import { CheckIcon } from "react-native-heroicons/outline";
+import SelectListModal from "../components/SelectListModal";
 
 const CreateShop2 = () => {
   const tw = useTailwind();
@@ -32,11 +36,22 @@ const CreateShop2 = () => {
     longitudeDelta: 0.2,
   });
 
+  const [modalVisible, setModalVisible] = useState(false);
+
   return (
     <SafeAreaView className="flex-1 bg-blue-500">
       <Header />
 
       <View className="flex-1 bg-white px-3 pt-4">
+        <SelectListModal
+          title="Area"
+          selected={area}
+          data={areas}
+          setModalVisible={setModalVisible}
+          modalVisible={modalVisible}
+          setSelect={setArea}
+        />
+
         <ScrollView>
           <Text className="text-black font-semibold text-2xl">
             Almost done!
@@ -84,16 +99,14 @@ const CreateShop2 = () => {
 
           <View className="mt-6">
             <Text className="text-lg font-semibold">Area</Text>
-            {/*<Picker*/}
-            {/*  selectedValue={area}*/}
-            {/*  onValueChange={(area) => setArea(area)}*/}
-            {/*  className="border rounded-lg border-gray-400 mt-2"*/}
-            {/*>*/}
-            {/*  <Picker.Item label="" value="" />*/}
-            {/*  {areas.map((area, i) => (*/}
-            {/*    <Picker.Item key={i} label={area.label} value={area.value} />*/}
-            {/*  ))}*/}
-            {/*</Picker>*/}
+            <View className="flex flex-row mt-2 border-b border-gray-400">
+              <Text className="flex-1 ">{area || "No area selected"}</Text>
+              <TouchableOpacity onPress={() => setModalVisible(!modalVisible)}>
+                <Text className="text-blue-500 text-lg font-semibold">
+                  Select
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
 
           <View className="h-96 mt-10">
