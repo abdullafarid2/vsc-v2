@@ -2,9 +2,11 @@ import React from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 import { StarIcon } from "react-native-heroicons/solid";
 import { useTailwind } from "tailwindcss-react-native";
+import useAuth from "../hooks/useAuth";
 
-const ShopTitle = ({ logo, shopName, subcategories, rating }) => {
+const ShopTitle = ({ logo, shopName, subcategories, rating, owner }) => {
   const tw = useTailwind();
+  const { user } = useAuth();
   return (
     <View className="flex flex-row my-3">
       <Image
@@ -43,15 +45,27 @@ const ShopTitle = ({ logo, shopName, subcategories, rating }) => {
           )}
         </View>
 
-        <TouchableOpacity>
-          <Text className="text-blue-500 font-bold mt-1">More Info</Text>
-        </TouchableOpacity>
+        {owner === user.id ? (
+          <TouchableOpacity>
+            <Text className="text-blue-500 font-bold mt-1">Edit Shop</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity>
+            <Text className="text-blue-500 font-bold mt-1">More Info</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       <View className="mt-1">
-        <TouchableOpacity>
-          <Text className="text-blue-500 font-bold mt-1">Send Message</Text>
-        </TouchableOpacity>
+        {owner === user.id ? (
+          <TouchableOpacity>
+            <Text className="text-blue-500 font-bold mt-1">Edit Products</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity>
+            <Text className="text-blue-500 font-bold mt-1">Send Message</Text>
+          </TouchableOpacity>
+        )}
 
         <TouchableOpacity className="flex-1 mt-5">
           <Text className="text-blue-500 font-bold mt-1 self-end">Reviews</Text>

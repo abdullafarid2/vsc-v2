@@ -341,7 +341,6 @@ router.get("/logout", (req, res, next) => {
 });
 
 router.get("/is-authenticated", async (req, res, next) => {
-  console.log(req.user);
   if (req.isAuthenticated()) {
     try {
       const user = await db.query("SELECT * FROM users WHERE id = $1;", [

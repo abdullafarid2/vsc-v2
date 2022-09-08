@@ -6,6 +6,7 @@ import { useTailwind } from "tailwindcss-react-native";
 
 const ProductsList = () => {
   const tw = useTailwind();
+  const arr = [1, 2, 3, 4];
   return (
     <View className="mt-3">
       <View className="flex flex-row">
@@ -21,9 +22,10 @@ const ProductsList = () => {
 
       <Text className="text-gray-500 font-semibold mt-1 mb-5">20 products</Text>
 
-      <View className="flex flex-row">
-        <ProductCard />
-        <ProductCard />
+      <View className="flex flex-row grid grid-cols-2 gap-2 space-x-3">
+        {arr.map((val, i) => (
+          <ProductCard key={i} />
+        ))}
       </View>
     </View>
   );

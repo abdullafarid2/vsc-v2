@@ -18,6 +18,7 @@ const ShopScreen = () => {
             shopName={shopDetails.name}
             subcategories={shopDetails.subcategories}
             rating={shopDetails.rating}
+            owner={shopDetails.owner_id}
           />
 
           <View className="border-b border-gray-300"></View>

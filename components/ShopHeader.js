@@ -16,15 +16,17 @@ const ShopHeader = () => {
         Platform.OS === "android" && "pt-10"
       }`}
     >
-      <View className="flex-1">
+      <View className="">
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <ArrowLeftIcon style={tw("text-white")} />
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity>
-        <MagnifyingGlassIcon size={30} style={tw("text-white")} />
-      </TouchableOpacity>
+      <View className="flex-1 items-end">
+        <TouchableOpacity>
+          <MagnifyingGlassIcon size={30} style={tw("text-white")} />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };

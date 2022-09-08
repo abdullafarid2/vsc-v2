@@ -1,6 +1,5 @@
-import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
 import { TailwindProvider } from "tailwindcss-react-native";
+import { Provider as PaperProvider } from "react-native-paper";
 import { NavigationContainer } from "@react-navigation/native";
 import { AuthProvider } from "./hooks/useAuth";
 import { ShopProvider } from "./hooks/useShops";
@@ -10,14 +9,16 @@ import Toast from "react-native-toast-message";
 export default function App() {
   return (
     <TailwindProvider>
-      <NavigationContainer>
-        <AuthProvider>
-          <ShopProvider>
-            <StackNavigator />
-            <Toast />
-          </ShopProvider>
-        </AuthProvider>
-      </NavigationContainer>
+      <PaperProvider>
+        <NavigationContainer>
+          <AuthProvider>
+            <ShopProvider>
+              <StackNavigator />
+              <Toast />
+            </ShopProvider>
+          </AuthProvider>
+        </NavigationContainer>
+      </PaperProvider>
     </TailwindProvider>
   );
 }
