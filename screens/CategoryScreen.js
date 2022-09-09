@@ -1,8 +1,6 @@
 import { View, Text, TouchableOpacity, FlatList, Image } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useNavigation, useRoute } from "@react-navigation/native";
-import useAuth from "../hooks/useAuth";
-import { MagnifyingGlassIcon } from "react-native-heroicons/outline";
 import ShopRow from "../components/ShopRow";
 import { BeakerIcon, FunnelIcon } from "react-native-heroicons/solid";
 import useShops from "../hooks/useShops";

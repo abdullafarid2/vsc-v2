@@ -323,6 +323,20 @@ router.put("/changePassword", async (req, res) => {
   }
 });
 
+router.get("/products/:shopId", async (req, res) => {
+  try {
+    const { shopId } = req.params;
+    const query = await db.query("SELECT * FROM products WHERE shop_id = $1;", [
+      shopId,
+    ]);
+
+    if (query.rows.length === 0) res.json(false);
+    else res.json(query.rows);
+  } catch (e) {
+    console.log(e.message);
+  }
+});
+
 // router.get("/protected-route", isAuth, (req, res, next) => {
 //   res.send("You made it to the route");
 // });

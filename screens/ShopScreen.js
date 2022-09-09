@@ -1,4 +1,4 @@
-import { View, Text, SafeAreaView, ScrollView } from "react-native";
+import { View, SafeAreaView, ScrollView } from "react-native";
 import React from "react";
 import ShopHeader from "../components/ShopHeader";
 import ShopTitle from "../components/ShopTitle";
@@ -12,7 +12,7 @@ const ShopScreen = () => {
     <SafeAreaView className="flex-1 bg-blue-500">
       <ShopHeader />
       <View className="flex-1 bg-white px-3">
-        <ScrollView>
+        <ScrollView showsVerticalScrollIndicator={false}>
           <ShopTitle
             logo={shopDetails.logo}
             shopName={shopDetails.name}
@@ -23,7 +23,7 @@ const ShopScreen = () => {
 
           <View className="border-b border-gray-300"></View>
 
-          <ProductsList />
+          <ProductsList shopId={shopDetails.id} />
         </ScrollView>
       </View>
     </SafeAreaView>
