@@ -7,22 +7,22 @@ const ProductCard = ({ name, price, photos, index }) => {
   const tw = useTailwind();
 
   return (
-    <Card
-      style={tw(
-        `w-1/2 mb-4 ${index % 2 == 1 && "ml-3"} ${index % 2 == 0 && "-ml-2"}`
-      )}
-    >
-      <Card.Cover
-        source={{
-          uri: photos[0],
-        }}
-      />
-      <View className="border-b border-gray-300"></View>
-      <Card.Content>
-        <Title>{name}</Title>
-        <Paragraph>{(Math.round(price * 1000) / 1000).toFixed(3)} BD</Paragraph>
-      </Card.Content>
-    </Card>
+    <View className={`w-1/2 ${index % 2 == 1 && "ml-2"}`}>
+      <Card style={tw(`mb-4`)}>
+        <Card.Cover
+          source={{
+            uri: photos[0],
+          }}
+        />
+        <View className="border-b border-gray-300"></View>
+        <Card.Content>
+          <Title>{name}</Title>
+          <Paragraph>
+            {(Math.round(price * 1000) / 1000).toFixed(3)} BD
+          </Paragraph>
+        </Card.Content>
+      </Card>
+    </View>
   );
 };
 

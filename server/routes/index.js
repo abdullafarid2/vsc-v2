@@ -89,6 +89,22 @@ router.get("/shops/:categoryId", async (req, res, next) => {
   }
 });
 
+router.get("/shop/:shopId", async (req, res) => {
+  try {
+    const { shopId } = req.params;
+    const query = await db.query("SELECT * FROM shops WHERE id = $1;", [
+      shopId,
+    ]);
+
+    if (query.rows.length === 0) res.json(false);
+
+    res.json(query.rows[0]);
+  } catch (e) {
+    console.log(e.message);
+    res.json(false);
+  }
+});
+
 router.get("/userShops", async (req, res) => {
   try {
     const query = await db.query("SELECT * FROM shops WHERE owner_id = $1", [

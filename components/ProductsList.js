@@ -13,38 +13,43 @@ const ProductsList = ({ shopId }) => {
   const arr = [
     {
       id: 1,
-      title: "Shirt",
+      name: "Shirt",
       price: 2.0,
-      imageUrl:
+      photos: [
         "https://m.media-amazon.com/images/I/61M9K0JF8bL._AC_SX569._SX._UX._SY._UY_.jpg",
+      ],
     },
     {
       id: 2,
-      title: "Jacket",
+      name: "Jacket",
       price: 5.0,
-      imageUrl:
+      photos: [
         "https://www.helikon-tex.com/media/catalog/product/cache/4/image/500x/17f82f742ffe127f42dca9de82fb58b1/b/l/bl-caf-fl-02.jpeg",
+      ],
     },
     {
       id: 3,
-      title: "Pants",
+      name: "Pants",
       price: 3.0,
-      imageUrl:
+      photos: [
         "https://www.helikon-tex.com/media/catalog/product/cache/4/image/9df78eab33525d08d6e5fb8d27136e95/s/p/sp-pgm-dc-11.jpg",
+      ],
     },
     {
       id: 4,
-      title: "Shoes",
+      name: "Shoes",
       price: 8.0,
-      imageUrl:
+      photos: [
         "https://static.nike.com/a/images/c_limit,w_592,f_auto/t_product_v1/47112d0a-dc23-4b74-876c-b638fecf0af2/air-jordan-1-retro-high-og-shoes-a7Zzxm.png",
+      ],
     },
     {
       id: 5,
-      title: "Cap",
+      name: "Cap",
       price: 1.0,
-      imageUrl:
+      photos: [
         "https://static.nike.com/a/images/t_PDP_1280_v1/f_auto,q_auto:eco/5a60fd99-2c3a-44d3-91bb-62a47224e322/sportswear-heritage-86-adjustable-cap-7g0hKX.png",
+      ],
     },
   ];
 
@@ -87,7 +92,7 @@ const ProductsList = ({ shopId }) => {
         {products.length} Products
       </Text>
 
-      <View className="px-3">
+      <View className="px-3 items-center">
         {products.map((_, i, array) => {
           if (
             (arr.length % 2 === 1 && i > arr.length / 2) ||
