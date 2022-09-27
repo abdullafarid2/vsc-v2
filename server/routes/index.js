@@ -49,6 +49,35 @@ router.get("/", (req, res, next) => {
   }
 });
 
+router.get("/users", async (req, res) => {
+  try {
+    const query = await db.query("SELECT * FROM users");
+
+    if (query.rows.length === 0) res.json([]);
+
+    res.json(query.rows);
+  } catch (err) {
+    console.log(err.message);
+    res.json([]);
+  }
+});
+
+router.get("/user/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const query = await db.query("SELECT * FROM users WHERE id = $1;", [
+      userId,
+    ]);
+
+    if (query.rows.length === 0) res.json({});
+
+    res.json(query.rows[0]);
+  } catch (err) {
+    console.log(err.message);
+    res.json({});
+  }
+});
+
 router.get("/categories", async (req, res, next) => {
   try {
     const categories = await db.query("SELECT * FROM categories");

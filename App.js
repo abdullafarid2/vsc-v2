@@ -5,6 +5,8 @@ import { AuthProvider } from "./hooks/useAuth";
 import { ShopProvider } from "./hooks/useShops";
 import StackNavigator from "./StackNavigator";
 import Toast from "react-native-toast-message";
+import { LogBox } from "react-native";
+LogBox.ignoreLogs(["AsyncStorage", "Cannot update a component"]);
 
 export default function App() {
   return (

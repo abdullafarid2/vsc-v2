@@ -4,6 +4,8 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import MessagesScreen from "../screens/MessagesScreen";
 import { useTailwind } from "tailwindcss-react-native";
 import ChatScreen from "../screens/ChatScreen";
+import CustomerChatList from "../screens/CustomerChatList";
+import ChatShopOwnerScreen from "../screens/ChatShopOwnerScreen";
 
 const MessagesStack = createNativeStackNavigator();
 
@@ -20,6 +22,19 @@ const MessagesStackScreen = () => {
         }}
       />
       <MessagesStack.Screen name="Chat" component={ChatScreen} />
+      <MessagesStack.Screen
+        name="ChatShopOwner"
+        component={ChatShopOwnerScreen}
+      />
+      <MessagesStack.Screen
+        name="CustomerChatList"
+        component={CustomerChatList}
+        options={{
+          headerStyle: tw("bg-blue-500"),
+          headerTitleStyle: tw("text-white"),
+          headerTintColor: "#fff",
+        }}
+      />
     </MessagesStack.Navigator>
   );
 };

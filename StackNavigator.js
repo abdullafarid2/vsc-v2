@@ -75,12 +75,15 @@ const StackNavigator = () => {
           <Tab.Screen
             name="NotificationsStack"
             component={NotificationsStackScreen}
-            options={{ tabBarLabel: "Notifications", tabBarBadge: 0 }}
+            options={{ tabBarLabel: "Notifications", tabBarBadge: "" }}
           />
           <Tab.Screen
             name="MessagesStack"
             component={MessagesStackScreen}
-            options={{ tabBarLabel: "Messages", tabBarBadge: 0 }}
+            options={{
+              tabBarLabel: "Messages",
+              tabBarBadge: "",
+            }}
           />
         </Tab.Navigator>
       ) : (

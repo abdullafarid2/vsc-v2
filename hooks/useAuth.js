@@ -6,6 +6,7 @@ import React, {
   useState,
 } from "react";
 import Toast from "react-native-toast-message";
+// import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const AuthContext = createContext();
 
@@ -15,7 +16,7 @@ export const AuthProvider = ({ children }) => {
   const [loadingInitial, setLoadingInitial] = useState(true);
   const [error, setError] = useState(null);
 
-  const url = "http://192.168.100.68:3000";
+  const url = "http://192.168.100.78:3000";
 
   const getUser = () => {
     return user;
@@ -29,14 +30,17 @@ export const AuthProvider = ({ children }) => {
     try {
       const res = await fetch(url + "/is-authenticated", {
         method: "GET",
+        credentials: "include",
       });
 
       const data = await res.json();
 
       if (!data) {
         setUser(null);
+        // await AsyncStorage.removeItem("userId");
       } else {
         setUser(data);
+        // await AsyncStorage.setItem("userId", data.id);
       }
     } catch (err) {
       setError(err);
@@ -75,6 +79,7 @@ export const AuthProvider = ({ children }) => {
         });
       } else {
         setUser(data);
+        // await AsyncStorage.setItem("userId", data.id);
         Toast.show({
           type: "success",
           text1: "Login Success",
@@ -143,6 +148,7 @@ export const AuthProvider = ({ children }) => {
       const data = await res.json();
 
       setUser(null);
+      // await AsyncStorage.removeItem("userId");
       Toast.show({
         type: "success",
         text1: "Logout Success",

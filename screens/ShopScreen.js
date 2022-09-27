@@ -13,13 +13,7 @@ const ShopScreen = () => {
       <ShopHeader />
       <View className="flex-1 bg-white px-3">
         <ScrollView showsVerticalScrollIndicator={false}>
-          <ShopTitle
-            logo={shopDetails.logo}
-            shopName={shopDetails.name}
-            subcategories={shopDetails.subcategories}
-            rating={shopDetails.rating}
-            owner={shopDetails.owner_id}
-          />
+          <ShopTitle shopDetails={shopDetails} />
 
           <View className="border-b border-gray-300"></View>
 

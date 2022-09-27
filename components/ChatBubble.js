@@ -3,7 +3,7 @@ import { Text, View } from "react-native";
 import { Avatar } from "react-native-paper";
 import { useTailwind } from "tailwindcss-react-native";
 
-const ChatBubble = ({ message, me, shop }) => {
+const ChatBubble = ({ message, me, name }) => {
   const tw = useTailwind();
   return (
     <View>
@@ -24,7 +24,7 @@ const ChatBubble = ({ message, me, shop }) => {
         >
           {/*<Avatar.Image size={50} source={{ uri: shop.logo }} />*/}
           <View className="px-1">
-            <Text className="text-white font-bold">{shop.name}</Text>
+            <Text className="text-white font-bold">{name}</Text>
             <Text className="text-white mt-2">{message}</Text>
           </View>
         </View>

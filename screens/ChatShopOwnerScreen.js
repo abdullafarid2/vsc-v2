@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef, useState, useEffect } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -17,14 +17,14 @@ import { PaperAirplaneIcon } from "react-native-heroicons/solid";
 import {
   addDoc,
   collection,
-  doc,
   getDocs,
   onSnapshot,
   orderBy,
   query,
   serverTimestamp,
-  updateDoc,
   where,
+  updateDoc,
+  doc,
 } from "firebase/firestore";
 import { db } from "../firebase";
 
@@ -35,23 +35,25 @@ const ChatScreen = () => {
 
   const { user } = useAuth();
 
-  const { chat } = route.params;
+  const { chatId, user: customer } = route.params;
 
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([]);
 
   useLayoutEffect(() => {
-    navigation.setOptions({ headerTitle: chat.shop.name });
+    navigation.setOptions({
+      headerTitle: customer.first_name + " " + customer.last_name,
+    });
   });
 
   const sendMessage = async () => {
-    await addDoc(collection(db, "chats", chat.chatId, "messages"), {
+    await addDoc(collection(db, "chats", chatId, "messages"), {
       timestamp: serverTimestamp(),
       message: input,
       senderId: user.id,
-      receiverId: chat.chatId.split("+")[1],
-      shopId: chat.chatId.split("+")[2],
+      receiverId: chatId.split("+")[1],
       read: false,
+      shopId: chatId.split("+")[2],
     });
 
     setInput("");
@@ -60,10 +62,7 @@ const ChatScreen = () => {
   useLayoutEffect(() => {
     const unsubscribe = async () => {
       await getDocs(
-        query(
-          collection(db, "chats", chat.chatId, "messages"),
-          orderBy("timestamp")
-        )
+        query(collection(db, "chats", chatId, "messages"), orderBy("timestamp"))
       ).then((snapshot) =>
         setMessages(
           snapshot.docs.map((doc) => ({
@@ -78,13 +77,13 @@ const ChatScreen = () => {
 
   useEffect(() => {
     const messagesQuery = query(
-      collection(db, "chats", chat.chatId, "messages"),
+      collection(db, "chats", chatId, "messages"),
       where("read", "==", false),
-      where("senderId", "==", chat.chatId.split("+")[1])
+      where("senderId", "==", chatId.split("+")[0])
     );
     return onSnapshot(messagesQuery, (snapshot) => {
       snapshot.forEach(async (m) => {
-        await updateDoc(doc(db, "chats", chat.chatId, "messages", m.id), {
+        await updateDoc(doc(db, "chats", chatId, "messages", m.id), {
           read: true,
         });
       });
@@ -119,16 +118,16 @@ const ChatScreen = () => {
             {messages.map((message, i) =>
               message.senderId === user.id ? (
                 <ChatBubble
-                  message={message?.message}
+                  message={message.message}
                   me={true}
-                  name={chat.shop.name}
+                  name={customer.first_name + " " + customer.last_name}
                   key={i}
                 />
               ) : (
                 <ChatBubble
-                  message={message?.message}
+                  message={message.message}
                   me={false}
-                  name={chat.shop.name}
+                  name={customer.first_name + " " + customer.last_name}
                   key={i}
                 />
               )
