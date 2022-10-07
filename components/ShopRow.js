@@ -53,16 +53,6 @@ const Shop = ({ shopDetails }) => {
             <Text className="text-[#838383]">No rating available</Text>
           )}
         </View>
-
-        <View className="flex flex-row mt-1">
-          {Array(shopDetails.price_range)
-            .fill()
-            .map((_, i) => (
-              <Text key={i} className="text-green-700 font-bold">
-                $
-              </Text>
-            ))}
-        </View>
       </View>
     </TouchableOpacity>
   );

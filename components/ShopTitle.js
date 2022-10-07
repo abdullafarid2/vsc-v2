@@ -8,7 +8,7 @@ import { db } from "../firebase";
 import { useNavigation } from "@react-navigation/native";
 import { ActivityIndicator, MD2Colors } from "react-native-paper";
 
-const ShopTitle = ({ shopDetails }) => {
+const ShopTitle = ({ shopDetails, products }) => {
   const tw = useTailwind();
   const navigation = useNavigation();
   const { user } = useAuth();
@@ -48,7 +48,7 @@ const ShopTitle = ({ shopDetails }) => {
         />
 
         <View className="flex-1 ml-3">
-          <Text className="text-lg font-bold">{shopDetails.shopName}</Text>
+          <Text className="text-lg font-bold">{shopDetails.name}</Text>
 
           <Text className="text-gray-500 font-semibold mt-1">
             {shopDetails.subcategories.join(", ")}
@@ -90,7 +90,14 @@ const ShopTitle = ({ shopDetails }) => {
 
         <View className="mt-1">
           {shopDetails.owner_id === user.id ? (
-            <TouchableOpacity>
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate("SearchProduct", {
+                  products,
+                  ...shopDetails,
+                })
+              }
+            >
               <Text className="text-blue-500 font-bold mt-1">
                 Edit Products
               </Text>

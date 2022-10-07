@@ -7,7 +7,7 @@ import {
 import { useTailwind } from "tailwindcss-react-native";
 import { useNavigation } from "@react-navigation/native";
 
-const ShopHeader = () => {
+const ShopHeader = ({ products, ownerId }) => {
   const tw = useTailwind();
   const navigation = useNavigation();
   return (
@@ -23,7 +23,14 @@ const ShopHeader = () => {
       </View>
 
       <View className="flex-1 items-end">
-        <TouchableOpacity>
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate("SearchProduct", {
+              products,
+              owner: ownerId,
+            })
+          }
+        >
           <MagnifyingGlassIcon size={30} style={tw("text-white")} />
         </TouchableOpacity>
       </View>

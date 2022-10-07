@@ -326,19 +326,85 @@ router.put("/deleteAddress", async (req, res) => {
     );
 
     if (addresses.rows[0].address.length === 0) res.json(false);
+    else {
+      addresses.rows[0].address.splice(id, 1);
 
-    addresses.rows[0].address.splice(id, 1);
+      const updatedAddress = await db.query(
+        "UPDATE users SET address = $1 WHERE id = $2 RETURNING *;",
+        [addresses.rows[0].address, req.user.id]
+      );
 
-    const updatedAddress = await db.query(
-      "UPDATE users SET address = $1 WHERE id = $2 RETURNING *;",
-      [addresses.rows[0].address, req.user.id]
-    );
+      req.user = updatedAddress.rows[0];
 
-    req.user = updatedAddress.rows[0];
-
-    res.json(req.user);
+      res.json(req.user);
+    }
   } catch (err) {
     console.log(err.message);
+  }
+});
+
+router.post("/newProduct", async (req, res) => {
+  try {
+    const { name, description, category, sizes, photo, shopId } = req.body;
+
+    const q = await db.query(
+      "INSERT INTO products (shop_id, name, category, description, photo) VALUES ($1, $2, $3, $4, $5) RETURNING *;",
+      [shopId, name, category, description, photo]
+    );
+
+    if (q.rows.length === 0) res.status(500).json(false);
+
+    sizes.forEach(async (s) => {
+      const q2 = await db.query(
+        "INSERT INTO inventory (pid, price, quantity, size) VALUES ($1, $2, $3, $4)",
+        [q.rows[0].id, s.price, s.quantity, s.size]
+      );
+    });
+
+    const q3 = await db.query(
+      "SELECT * FROM products FULL JOIN inventory ON products.id = inventory.pid WHERE products.shop_id = $1;",
+      [shopId]
+    );
+
+    if (q3.rows.length === 0) res.json(false);
+    else res.json(q3.rows);
+  } catch (e) {
+    console.log(e.message);
+    res.json(false);
+  }
+});
+
+router.get("/productCategories/:shopId", async (req, res) => {
+  try {
+    const { shopId } = req.params;
+
+    const q = await db.query(
+      "SELECT * FROM productcategories WHERE shop_id = $1",
+      [shopId]
+    );
+
+    if (q.rows.length === 0) res.json([]);
+    else res.json(q.rows);
+  } catch (e) {
+    console.log(e.message);
+    res.json(false);
+  }
+});
+
+router.post("/newProductCategory", async (req, res) => {
+  try {
+    const { newCategory, shopId } = req.body;
+
+    const q = await db.query(
+      "INSERT INTO productcategories (shop_id, name) VALUES ($1, $2) RETURNING *",
+      [shopId, newCategory]
+    );
+
+    if (q.rows.length === 0) res.json(false);
+    else res.json(q.rows);
+  } catch (e) {
+    console.log(e.message);
+    res.json(false);
   }
 });
 
@@ -371,14 +437,33 @@ router.put("/changePassword", async (req, res) => {
 router.get("/products/:shopId", async (req, res) => {
   try {
     const { shopId } = req.params;
-    const query = await db.query("SELECT * FROM products WHERE shop_id = $1;", [
+
+    const q = await db.query("SELECT * FROM products WHERE shop_id = $1", [
       shopId,
     ]);
 
-    if (query.rows.length === 0) res.json(false);
-    else res.json(query.rows);
+    if (q.rows.length === 0) res.status(500).json(false);
+
+    const query = await db.query(
+      "SELECT * FROM products FULL JOIN inventory ON products.id = inventory.pid WHERE products.shop_id = $1;",
+      [shopId]
+    );
+
+    if (query.rows.length === 0) res.status(500).json(false);
+
+    let products = [];
+
+    q.rows.map((product) => {
+      products.push({
+        ...product,
+        sizes: query.rows.filter((s) => s.pid === product.id),
+      });
+    });
+
+    res.json(products);
   } catch (e) {
     console.log(e.message);
+    res.json(false);
   }
 });
 
