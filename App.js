@@ -6,6 +6,9 @@ import { ShopProvider } from "./hooks/useShops";
 import StackNavigator from "./StackNavigator";
 import Toast from "react-native-toast-message";
 import { LogBox } from "react-native";
+import { CartProvider } from "./hooks/useCart";
+import { useState } from "react";
+import { NotificationProvider } from "./hooks/useNotifications";
 LogBox.ignoreLogs(["AsyncStorage", "Cannot update a component"]);
 
 export default function App() {
@@ -15,8 +18,12 @@ export default function App() {
         <NavigationContainer>
           <AuthProvider>
             <ShopProvider>
-              <StackNavigator />
-              <Toast />
+              <NotificationProvider>
+                <CartProvider>
+                  <StackNavigator />
+                  <Toast />
+                </CartProvider>
+              </NotificationProvider>
             </ShopProvider>
           </AuthProvider>
         </NavigationContainer>

@@ -47,7 +47,7 @@ const UserShopsScreen = () => {
                 <Text className={"font-bold text-black text-xl"}>
                   My shops{" "}
                 </Text>
-                <Text>({userShops.length}/5)</Text>
+                <Text>({userShops.length}/3)</Text>
               </View>
             </>
           }

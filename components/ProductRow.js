@@ -28,7 +28,8 @@ const ProductRow = ({ product, owner }) => {
       activeOpacity={1}
       onPress={() => {
         navigation.navigate("Product", {
-          ...product,
+          product,
+          fixedPrice,
         });
       }}
     >

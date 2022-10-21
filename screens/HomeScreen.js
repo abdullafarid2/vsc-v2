@@ -4,12 +4,9 @@ import { useNavigation } from "@react-navigation/native";
 import HomeHeader from "../components/HomeHeader";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ShopList from "../components/ShopList";
-import CartButton from "../components/CartButton";
 import useAuth from "../hooks/useAuth";
 
 const HomeScreen = () => {
-  const { user } = useAuth();
-
   const shuffle = (shopsArray) => {
     // setShops(shopsArray.filter((shop) => shop.owner_id !== user.id));
 
@@ -40,7 +37,6 @@ const HomeScreen = () => {
       <HomeHeader />
 
       <View className="flex-1 bg-white">
-        <CartButton />
         <ShopList shops={shops} setShops={setShops} />
       </View>
     </SafeAreaView>

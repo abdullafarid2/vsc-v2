@@ -14,6 +14,8 @@ import CategoryScreen from "../screens/CategoryScreen";
 import ShopScreen from "../screens/ShopScreen";
 import { useTailwind } from "tailwindcss-react-native";
 import SearchProductScreen from "../screens/SearchProductScreen";
+import ProductScreen from "../screens/ProductScreen";
+import CreateProduct from "../screens/CreateProductScreen";
 
 const HomeStack = createNativeStackNavigator();
 
@@ -29,7 +31,10 @@ const HomeStackScreen = () => {
           component={ShopScreen}
           options={{ headerShown: false }}
         />
+        <HomeStack.Screen name={"CreateProduct"} component={CreateProduct} />
+        <HomeStack.Screen name="Product" component={ProductScreen} />
       </HomeStack.Group>
+
       <HomeStack.Screen
         name={"SearchProduct"}
         component={SearchProductScreen}

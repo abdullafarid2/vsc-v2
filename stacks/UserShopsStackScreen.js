@@ -8,6 +8,7 @@ import ShopCreatedSuccessScreen from "../screens/ShopCreatedSuccessScreen";
 import ShopScreen from "../screens/ShopScreen";
 import SearchProductScreen from "../screens/SearchProductScreen";
 import CreateProductScreen from "../screens/CreateProductScreen";
+import ProductScreen from "../screens/ProductScreen";
 
 const UserShopsStack = createNativeStackNavigator();
 
@@ -26,6 +27,7 @@ const UserShopsStackScreen = () => {
           component={ShopCreatedSuccessScreen}
         />
       </UserShopsStack.Group>
+      <UserShopsStack.Screen name="Product" component={ProductScreen} />
       <UserShopsStack.Screen
         name={"SearchProduct"}
         component={SearchProductScreen}

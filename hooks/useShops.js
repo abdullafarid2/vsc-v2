@@ -47,9 +47,14 @@ export const ShopProvider = ({ children }) => {
     setLoadingInitial(false);
   }, []);
 
+  useEffect(() => {
+    getShops();
+  }, [shops]);
+
   const memoedValue = useMemo(
     () => ({
       shops,
+      setShops,
       getShops,
       getShop,
     }),

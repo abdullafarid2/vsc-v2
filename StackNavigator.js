@@ -9,23 +9,33 @@ import {
   BellIcon as BellIconSolid,
   ChatBubbleLeftIcon as ChatIconSolid,
   HomeIcon as HomeIconSolid,
+  ShoppingCartIcon as ShoppingCartIconSolid,
   TagIcon as TagIconSolid,
 } from "react-native-heroicons/solid";
 import {
   BellIcon,
   ChatBubbleLeftIcon,
   HomeIcon,
+  ShoppingCartIcon,
   TagIcon,
 } from "react-native-heroicons/outline";
 import UserShopsStackScreen from "./stacks/UserShopsStackScreen";
 import NotificationsStackScreen from "./stacks/NotificationsStackScreen";
 import MessagesStackScreen from "./stacks/MessagesStackScreen";
+import CartStackScreen from "./stacks/CartStack";
+import { useTailwind } from "tailwindcss-react-native";
+import useCart from "./hooks/useCart";
+import useNotifications from "./hooks/useNotifications";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 const StackNavigator = () => {
+  const tw = useTailwind();
   const { user } = useAuth();
+  const { cart, numberOfItems } = useCart();
+  const { numberOfNotifications } = useNotifications();
+
   return (
     <>
       {user ? (
@@ -43,6 +53,12 @@ const StackNavigator = () => {
                   <TagIconSolid size={size} color={color} />
                 ) : (
                   <TagIcon size={size} color={color} />
+                );
+              } else if (route.name === "CartStack") {
+                return focused ? (
+                  <ShoppingCartIconSolid size={size} color={color} />
+                ) : (
+                  <ShoppingCartIcon size={size} color={color} />
                 );
               } else if (route.name === "NotificationsStack") {
                 return focused ? (
@@ -73,9 +89,24 @@ const StackNavigator = () => {
             options={{ tabBarLabel: "My Shops" }}
           />
           <Tab.Screen
+            name="CartStack"
+            component={CartStackScreen}
+            options={{
+              tabBarLabel: "Cart",
+              tabBarBadge: numberOfItems,
+              tabBarBadgeStyle: tw(`${numberOfItems === 0 && "hidden"}`),
+            }}
+          />
+          <Tab.Screen
             name="NotificationsStack"
             component={NotificationsStackScreen}
-            options={{ tabBarLabel: "Notifications", tabBarBadge: "" }}
+            options={{
+              tabBarLabel: "Notifications",
+              tabBarBadge: numberOfNotifications,
+              tabBarBadgeStyle: tw(
+                `${numberOfNotifications === 0 && "hidden"}`
+              ),
+            }}
           />
           <Tab.Screen
             name="MessagesStack"

@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Card, Paragraph, Title } from "react-native-paper";
 import { useTailwind } from "tailwindcss-react-native";
-import { View } from "react-native";
+import { TouchableOpacity, View } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
 const ProductCard = ({ product, index }) => {
   const tw = useTailwind();
+  const navigation = useNavigation();
 
   const [fixedPrice, setFixedPrice] = useState(true);
 
@@ -18,7 +20,14 @@ const ProductCard = ({ product, index }) => {
   }, []);
 
   return (
-    <View
+    <TouchableOpacity
+      onPress={() =>
+        navigation.navigate("Product", {
+          product,
+          fixedPrice,
+        })
+      }
+      activeOpacity={0.7}
       className={`w-1/2 ${index % 2 == 0 && "-ml-2"} ${
         index % 2 == 1 && "ml-2"
       }`}
@@ -41,7 +50,7 @@ const ProductCard = ({ product, index }) => {
           )}
         </Card.Content>
       </Card>
-    </View>
+    </TouchableOpacity>
   );
 };
 

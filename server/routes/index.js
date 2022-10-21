@@ -3,6 +3,7 @@ const passport = require("passport");
 const db = require("../db");
 const bcrypt = require("bcrypt");
 const { isAuth, isAdmin } = require("./authMiddleware");
+const { pool } = require("../db");
 
 router.post(
   "/login",
@@ -53,7 +54,7 @@ router.get("/users", async (req, res) => {
   try {
     const query = await db.query("SELECT * FROM users");
 
-    if (query.rows.length === 0) res.json([]);
+    if (query.rows.length === 0) return res.json([]);
 
     res.json(query.rows);
   } catch (err) {
@@ -69,7 +70,7 @@ router.get("/user/:userId", async (req, res) => {
       userId,
     ]);
 
-    if (query.rows.length === 0) res.json({});
+    if (query.rows.length === 0) return res.json({});
 
     res.json(query.rows[0]);
   } catch (err) {
@@ -82,7 +83,7 @@ router.get("/categories", async (req, res, next) => {
   try {
     const categories = await db.query("SELECT * FROM categories");
 
-    if (categories.rows.length === 0) res.json(false);
+    if (categories.rows.length === 0) return res.json(false);
     else res.json(categories.rows);
   } catch (err) {
     console.error(err.message);
@@ -94,7 +95,7 @@ router.get("/shops", async (req, res, next) => {
   try {
     const shops = await db.query("SELECT * FROM shops");
 
-    if (shops.rows.length === 0) res.json(false);
+    if (shops.rows.length === 0) return res.json(false);
     else res.json(shops.rows);
   } catch (err) {
     console.error(err.message);
@@ -110,7 +111,7 @@ router.get("/shops/:categoryId", async (req, res, next) => {
       categoryId,
     ]);
 
-    if (query.rows.length === 0) res.json([]);
+    if (query.rows.length === 0) return res.json([]);
     else res.json(query.rows);
   } catch (error) {
     console.log(error.message);
@@ -125,7 +126,7 @@ router.get("/shop/:shopId", async (req, res) => {
       shopId,
     ]);
 
-    if (query.rows.length === 0) res.json(false);
+    if (query.rows.length === 0) return res.json(false);
 
     res.json(query.rows[0]);
   } catch (e) {
@@ -140,7 +141,7 @@ router.get("/userShops", async (req, res) => {
       req.user.id,
     ]);
 
-    if (query.rows.length === 0) res.json(false);
+    if (query.rows.length === 0) return res.json(false);
     else res.json(query.rows);
   } catch (err) {
     console.log(err.message);
@@ -196,7 +197,7 @@ router.post("/createShop", async (req, res) => {
       ]
     );
 
-    if (query.rows.length === 0) res.json(false);
+    if (query.rows.length === 0) return res.json(false);
     else res.json(true);
   } catch (err) {
     console.log(err.message);
@@ -229,7 +230,7 @@ router.get("/addresses", async (req, res, next) => {
       [req.user.id]
     );
 
-    if (addresses.rows.length === 0) res.json(false);
+    if (addresses.rows.length === 0) return res.json(false);
     else res.json(addresses.rows[0].address);
   } catch (err) {
     console.error(err.message);
@@ -352,7 +353,7 @@ router.post("/newProduct", async (req, res) => {
       [shopId, name, category, description, photo]
     );
 
-    if (q.rows.length === 0) res.status(500).json(false);
+    if (q.rows.length === 0) return res.status(500).json(false);
 
     sizes.forEach(async (s) => {
       const q2 = await db.query(
@@ -366,7 +367,7 @@ router.post("/newProduct", async (req, res) => {
       [shopId]
     );
 
-    if (q3.rows.length === 0) res.json(false);
+    if (q3.rows.length === 0) return res.json(false);
     else res.json(q3.rows);
   } catch (e) {
     console.log(e.message);
@@ -383,7 +384,7 @@ router.get("/productCategories/:shopId", async (req, res) => {
       [shopId]
     );
 
-    if (q.rows.length === 0) res.json([]);
+    if (q.rows.length === 0) return res.json([]);
     else res.json(q.rows);
   } catch (e) {
     console.log(e.message);
@@ -400,7 +401,7 @@ router.post("/newProductCategory", async (req, res) => {
       [shopId, newCategory]
     );
 
-    if (q.rows.length === 0) res.json(false);
+    if (q.rows.length === 0) return res.json(false);
     else res.json(q.rows);
   } catch (e) {
     console.log(e.message);
@@ -438,18 +439,19 @@ router.get("/products/:shopId", async (req, res) => {
   try {
     const { shopId } = req.params;
 
-    const q = await db.query("SELECT * FROM products WHERE shop_id = $1", [
-      shopId,
-    ]);
-
-    if (q.rows.length === 0) res.status(500).json(false);
-
-    const query = await db.query(
-      "SELECT * FROM products FULL JOIN inventory ON products.id = inventory.pid WHERE products.shop_id = $1;",
+    const q = await db.query(
+      "SELECT * FROM products WHERE shop_id = $1 ORDER BY id ASC;",
       [shopId]
     );
 
-    if (query.rows.length === 0) res.status(500).json(false);
+    if (q.rows.length === 0) return res.status(500).json(false);
+
+    const query = await db.query(
+      "SELECT * FROM products FULL JOIN inventory ON products.id = inventory.pid WHERE products.shop_id = $1 ORDER BY inventory.id ASC;",
+      [shopId]
+    );
+
+    if (query.rows.length === 0) return res.status(500).json(false);
 
     let products = [];
 
@@ -464,6 +466,197 @@ router.get("/products/:shopId", async (req, res) => {
   } catch (e) {
     console.log(e.message);
     res.json(false);
+  }
+});
+
+router.get("/cart/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const cart = await db.query("SELECT * FROM cart WHERE uid = $1", [userId]);
+
+    if (cart.rows.length === 0) return res.json([]);
+    else res.json(cart.rows);
+  } catch (e) {
+    console.log(e.message);
+    res.json([]);
+  }
+});
+
+router.get("/cartItems/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const cart = await db.query("SELECT * FROM cart WHERE uid = $1", [userId]);
+
+    if (cart.rows.length === 0) return res.json([]);
+    else {
+      let cartItems = [];
+      await Promise.all(
+        cart.rows.map(async (c) => {
+          try {
+            const iid = c.iid;
+            const shopId = c.sid;
+
+            const product = await db.query(
+              "SELECT * FROM products FULL JOIN inventory ON products.id = inventory.pid  WHERE inventory.id = $1 AND products.shop_id = $2;",
+              [iid, shopId]
+            );
+            cartItems.push({
+              ...product.rows[0],
+              quantity: c.quantity,
+              cartId: c.id,
+              note: c.note,
+            });
+          } catch (e) {
+            console.log(e.message);
+          }
+        })
+      );
+
+      return res.json(cartItems);
+    }
+  } catch (e) {
+    console.log(e.message);
+    res.json([]);
+  }
+});
+
+router.post("/addToCart", async (req, res) => {
+  try {
+    const { userId, product, size, quantity, note } = req.body;
+
+    const query = await db.query(
+      "SELECT * FROM cart WHERE pid = $1 AND iid = $2 AND note = $3;",
+      [product.id, size.id, note]
+    );
+
+    if (query.rows.length === 1 && note === query.rows[0].note) {
+      const newQuantity = query.rows[0].quantity + quantity;
+      const q = await db.query(
+        "UPDATE cart SET quantity = $1 WHERE id = $2 RETURNING *;",
+        [newQuantity, query.rows[0].id]
+      );
+
+      const cart = await db.query("SELECT * FROM cart WHERE uid = $1", [
+        userId,
+      ]);
+
+      if (cart.rows.length === 0) return res.json([]);
+      else res.json(cart.rows);
+    } else {
+      const q = await db.query(
+        "INSERT INTO cart (uid, sid, pid, iid, quantity, note) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;",
+        [userId, product.shop_id, product.id, size.id, quantity, note]
+      );
+
+      const cart = await db.query("SELECT * FROM cart WHERE uid = $1", [
+        userId,
+      ]);
+
+      if (cart.rows.length === 0) return res.json([]);
+      else res.json(cart.rows);
+    }
+  } catch (e) {
+    console.log(e.message);
+    res.json(false);
+  }
+});
+
+router.put("/updateQuantity", async (req, res) => {
+  try {
+    const { cartId, q } = req.body;
+
+    const cartItem = await db.query("SELECT * FROM cart WHERE id = $1;", [
+      cartId,
+    ]);
+
+    const newQuantity = cartItem.rows[0].quantity + q;
+
+    if (newQuantity <= 0) {
+      const deletedItem = await db.query(
+        "DELETE FROM cart WHERE id = $1 RETURNING *;",
+        [cartId]
+      );
+
+      return res.json({ cartItem: cartItem.rows[0], updatedItem: null });
+    } else {
+      const updatedItem = await db.query(
+        "UPDATE cart SET quantity = $1 WHERE id = $2 RETURNING *;",
+        [newQuantity, cartId]
+      );
+
+      return res.json({
+        cartItem: cartItem.rows[0],
+        updatedItem: updatedItem.rows[0],
+      });
+    }
+  } catch (e) {
+    console.log(e.message);
+    res.json(false);
+  }
+});
+
+router.delete("/clearCart/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const q = await db.query("DELETE FROM cart WHERE uid = $1 RETURNING *;", [
+      userId,
+    ]);
+
+    if (q.rows.length === 0) return res.json(false);
+    else return res.json(true);
+  } catch (e) {
+    console.log(e.message);
+    res.json(false);
+  }
+});
+
+router.post("/placeOrder", async (req, res) => {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    const { userId, cart, address, total, date } = req.body;
+
+    const query = await client.query(
+      "INSERT INTO orders (uid, address, total, date, status) VALUES ($1, $2, $3, $4, $5) RETURNING *;",
+      [userId, address, total, date, "Pending"]
+    );
+
+    const inventory = await client.query("SELECT * FROM inventory");
+
+    const insertItemsText =
+      "INSERT INTO orderitems (oid, iid, quantity) VALUES ($1, $2, $3) RETURNING *;";
+
+    for (const c of cart) {
+      const inv = inventory.rows.filter((i) => c.iid === i.id);
+      const newQuantity = inv[0].quantity - c.quantity;
+
+      if (newQuantity < 0) {
+        throw Error(c.id);
+      } else {
+        await client.query(insertItemsText, [
+          query.rows[0].id,
+          c.iid,
+          c.quantity,
+        ]);
+
+        await client.query(
+          "UPDATE inventory SET quantity = $1 WHERE id = $2;",
+          [newQuantity, inv[0].id]
+        );
+      }
+    }
+    await client.query("DELETE FROM cart WHERE uid = $1;", [userId]);
+
+    await client.query("COMMIT");
+
+    res.json(query.rows[0]);
+  } catch (e) {
+    await client.query("ROLLBACK");
+    console.log(e.message);
+    res.json({ error: "Invalid Quantity", cart: e.message });
   }
 });
 
