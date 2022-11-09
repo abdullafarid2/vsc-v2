@@ -147,3 +147,15 @@ export const areas = [
   { id: "Dilmunia Island", name: "Dilmunia Island" },
   { id: "Sakhir Industrial 3", name: "Sakhir Industrial 3" },
 ];
+
+function compare(a, b) {
+  if (a.name < b.name) {
+    return -1;
+  }
+  if (a.name > b.name) {
+    return 1;
+  }
+  return 0;
+}
+
+areas.sort(compare);

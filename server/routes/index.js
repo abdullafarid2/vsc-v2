@@ -66,9 +66,10 @@ router.get("/users", async (req, res) => {
 router.get("/user/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
-    const query = await db.query("SELECT * FROM users WHERE id = $1;", [
-      userId,
-    ]);
+    const query = await db.query(
+      "SELECT id, first_name, last_name, phone_number FROM users WHERE id = $1;",
+      [userId]
+    );
 
     if (query.rows.length === 0) return res.json({});
 
@@ -93,7 +94,9 @@ router.get("/categories", async (req, res, next) => {
 
 router.get("/shops", async (req, res, next) => {
   try {
-    const shops = await db.query("SELECT * FROM shops");
+    const shops = await db.query(
+      "SELECT shops.*, categories.name as category_name FROM shops INNER JOIN categories ON shops.category = categories.id;"
+    );
 
     if (shops.rows.length === 0) return res.json(false);
     else res.json(shops.rows);
@@ -165,7 +168,6 @@ router.post("/createShop", async (req, res) => {
       shopName,
       owner,
       logo,
-      cover,
       status,
     } = req.body;
 
@@ -179,7 +181,7 @@ router.post("/createShop", async (req, res) => {
     };
 
     const query = await db.query(
-      "INSERT INTO shops (address, category, cr, description, email, phone, name, owner_id, logo, cover, status, delivery, subcategories ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING *;",
+      "INSERT INTO shops (address, category, cr, description, email, phone, name, owner_id, logo, status, subcategories ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *;",
       [
         address,
         category,
@@ -190,15 +192,13 @@ router.post("/createShop", async (req, res) => {
         shopName,
         owner,
         logo,
-        cover,
         status,
-        true,
         ["TEST"],
       ]
     );
 
     if (query.rows.length === 0) return res.json(false);
-    else res.json(true);
+    else res.json(query.rows[0]);
   } catch (err) {
     console.log(err.message);
     res.json(false);
@@ -617,42 +617,62 @@ router.post("/placeOrder", async (req, res) => {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
+
     const { userId, cart, address, total, date } = req.body;
 
-    const query = await client.query(
-      "INSERT INTO orders (uid, address, total, date, status) VALUES ($1, $2, $3, $4, $5) RETURNING *;",
-      [userId, address, total, date, "Pending"]
-    );
+    let shops = [];
+    let orders = [];
+
+    cart.map((c) => {
+      if (shops.indexOf(c.sid) === -1) {
+        shops.push(c.sid);
+      }
+    });
 
     const inventory = await client.query("SELECT * FROM inventory");
 
-    const insertItemsText =
-      "INSERT INTO orderitems (oid, iid, quantity) VALUES ($1, $2, $3) RETURNING *;";
-
-    for (const c of cart) {
-      const inv = inventory.rows.filter((i) => c.iid === i.id);
-      const newQuantity = inv[0].quantity - c.quantity;
-
-      if (newQuantity < 0) {
-        throw Error(c.id);
-      } else {
-        await client.query(insertItemsText, [
-          query.rows[0].id,
-          c.iid,
-          c.quantity,
-        ]);
-
-        await client.query(
-          "UPDATE inventory SET quantity = $1 WHERE id = $2;",
-          [newQuantity, inv[0].id]
+    await Promise.all(
+      shops.map(async (shopId) => {
+        const newOrder = await client.query(
+          "INSERT INTO orders (uid, sid, address, total, timestamp, status) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;",
+          [userId, shopId, address, total, date, "Pending"]
         );
-      }
-    }
+
+        orders.push(newOrder.rows[0].id);
+
+        const items = cart.filter((c) => c.sid === shopId);
+
+        items.map(async (item) => {
+          const inv = inventory.rows.filter((i) => item.iid === i.id);
+          const newQuantity = inv[0].quantity - item.quantity;
+
+          if (newQuantity < 0) {
+            throw Error(item.id);
+          } else {
+            await client.query(
+              "INSERT INTO orderitems (oid, iid, quantity) VALUES ($1, $2, $3) RETURNING *;",
+              [newOrder.rows[0].id, item.iid, item.quantity]
+            );
+
+            await client.query(
+              "UPDATE inventory SET quantity = $1 WHERE id = $2;",
+              [newQuantity, inv[0].id]
+            );
+          }
+        });
+      })
+    );
+
+    const data = await client.query(
+      "SELECT shops.id AS shopId, shops.name AS shop_name, shops.owner_id, oid, orders.timestamp FROM shops INNER JOIN orders ON shops.id = orders.sid INNER JOIN orderItems ON orders.id = orderItems.oid AND orderItems.oid =ANY ($1) GROUP BY(shops.id, oid, timestamp);",
+      [orders]
+    );
+
     await client.query("DELETE FROM cart WHERE uid = $1;", [userId]);
 
     await client.query("COMMIT");
 
-    res.json(query.rows[0]);
+    res.json(data.rows);
   } catch (e) {
     await client.query("ROLLBACK");
     console.log(e.message);
@@ -660,13 +680,223 @@ router.post("/placeOrder", async (req, res) => {
   }
 });
 
-// router.get("/protected-route", isAuth, (req, res, next) => {
-//   res.send("You made it to the route");
-// });
+router.get("/shops/pendingOrders/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
 
-// router.get("/admin-route", isAdmin, (req, res, next) => {
-//   res.send("You made it to the admin route");
-// });
+    const ordersQuery = await db.query(
+      "SELECT orders.* FROM orders INNER JOIN shops ON (orders.sid = shops.id AND shops.owner_id = $1 AND orders.status = 'Pending') ORDER BY orders.timestamp DESC;",
+      [userId]
+    );
+
+    res.json(ordersQuery.rows);
+  } catch (e) {
+    console.log(e.message);
+    res.json(false);
+  }
+});
+
+router.get("/shops/ongoingOrders/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const ordersQuery = await db.query(
+      "SELECT orders.* FROM orders INNER JOIN shops ON (orders.sid = shops.id AND shops.owner_id = $1 AND orders.status = 'Ongoing') ORDER BY orders.expected_date ASC;",
+      [userId]
+    );
+
+    res.json(ordersQuery.rows);
+  } catch (e) {
+    console.log(e.message);
+    res.json(false);
+  }
+});
+
+router.get("/shops/deliveredOrders/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const ordersQuery = await db.query(
+      "SELECT orders.* FROM orders INNER JOIN shops ON (orders.sid = shops.id AND shops.owner_id = $1 AND orders.status = 'Delivered') ORDER BY orders.timestamp DESC;",
+      [userId]
+    );
+
+    res.json(ordersQuery.rows);
+  } catch (e) {
+    console.log(e.message);
+    res.json(false);
+  }
+});
+
+router.get("/shops/cancelledOrders/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const ordersQuery = await db.query(
+      "SELECT orders.* FROM orders INNER JOIN shops ON (orders.sid = shops.id AND shops.owner_id = $1 AND orders.status = 'Cancelled') ORDER BY orders.timestamp DESC;",
+      [userId]
+    );
+
+    res.json(ordersQuery.rows);
+  } catch (e) {
+    console.log(e.message);
+    res.json(false);
+  }
+});
+
+router.get("/user/pendingOrders/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const ordersQuery = await db.query(
+      "SELECT orders.* FROM orders INNER JOIN shops ON (orders.sid = shops.id AND orders.uid = $1 AND orders.status = 'Pending') ORDER BY orders.timestamp DESC;",
+      [userId]
+    );
+
+    res.json(ordersQuery.rows);
+  } catch (e) {
+    console.log(e.message);
+    res.json(false);
+  }
+});
+
+router.get("/user/ongoingOrders/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const ordersQuery = await db.query(
+      "SELECT orders.* FROM orders INNER JOIN shops ON (orders.sid = shops.id AND orders.uid = $1 AND orders.status = 'Ongoing') ORDER BY orders.timestamp DESC;",
+      [userId]
+    );
+
+    res.json(ordersQuery.rows);
+  } catch (e) {
+    console.log(e.message);
+    res.json(false);
+  }
+});
+
+router.get("/user/deliveredOrders/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const ordersQuery = await db.query(
+      "SELECT orders.* FROM orders INNER JOIN shops ON (orders.sid = shops.id AND orders.uid = $1 AND orders.status = 'Delivered') ORDER BY orders.timestamp DESC;",
+      [userId]
+    );
+
+    res.json(ordersQuery.rows);
+  } catch (e) {
+    console.log(e.message);
+    res.json(false);
+  }
+});
+
+router.get("/user/cancelledOrders/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const ordersQuery = await db.query(
+      "SELECT orders.* FROM orders INNER JOIN shops ON (orders.sid = shops.id AND orders.uid = $1 AND orders.status = 'Cancelled') ORDER BY orders.timestamp DESC;",
+      [userId]
+    );
+
+    res.json(ordersQuery.rows);
+  } catch (e) {
+    console.log(e.message);
+    res.json(false);
+  }
+});
+
+router.get("/orderItems/:orderId", async (req, res) => {
+  try {
+    const { orderId } = req.params;
+
+    const items = await db.query(
+      "SELECT orderItems.oid AS orderId, orderItems.quantity as quantity, inventory.pid AS pid, inventory.id AS iid, inventory.size AS size, inventory.price AS price, products.name FROM orderItems INNER JOIN inventory ON orderItems.iid = inventory.id AND orderItems.oid = $1 INNER JOIN products ON inventory.pid = products.id",
+      [orderId]
+    );
+
+    res.json(items.rows);
+  } catch (e) {
+    console.log(e.message);
+    res.json(false);
+  }
+});
+
+router.put("/confirmOrder", async (req, res) => {
+  try {
+    const { orderId, accepted, expected_date } = req.body;
+
+    const queryText = `UPDATE orders SET status = $1, expected_date = $2 WHERE id = $3;`;
+    const updateOrder = await db.query(queryText, [
+      accepted ? "Ongoing" : "Cancelled",
+      accepted ? expected_date : null,
+      orderId,
+    ]);
+
+    res.json(true);
+  } catch (e) {
+    console.log(e.message);
+    res.json(false);
+  }
+});
+
+router.put("/updateDeliveryDate", async (req, res) => {
+  try {
+    const { oid, expected_date } = req.body;
+
+    const updateQuery = await db.query(
+      "UPDATE orders SET expected_date = $1 WHERE id = $2",
+      [expected_date, oid]
+    );
+
+    res.json(true);
+  } catch (e) {
+    console.log(e.message);
+    res.json(false);
+  }
+});
+
+router.put("/deliverOrder", async (req, res) => {
+  try {
+    const { oid } = req.body;
+    const updateQuery = await db.query(
+      "UPDATE orders SET status = 'Delivered' WHERE id = $1 RETURNING *;",
+      [oid]
+    );
+
+    if (updateQuery.rows.length === 0) return res.json(false);
+    res.json(true);
+  } catch (e) {
+    console.log(e.message);
+    res.json(false);
+  }
+});
+
+router.put("/cancelOrder", async (req, res) => {
+  try {
+    const { oid } = req.body;
+    const updateQuery = await db.query(
+      "UPDATE orders SET status = 'Cancelled' WHERE id = $1 RETURNING *;",
+      [oid]
+    );
+
+    if (updateQuery.rows.length === 0) return res.json(false);
+    res.json(true);
+  } catch (e) {
+    console.log(e.message);
+    res.json(false);
+  }
+});
+
+router.get("/protected-route", isAuth, (req, res, next) => {
+  res.send("You made it to the route");
+});
+
+router.get("/admin-route", isAdmin, (req, res, next) => {
+  res.send("You made it to the admin route");
+});
 
 router.get("/logout", (req, res, next) => {
   req.logout((err) => {
@@ -685,24 +915,24 @@ router.get("/is-authenticated", async (req, res, next) => {
       ]);
 
       if (user.rows.length === 0) {
-        res.json(false);
+        return res.json(false);
       }
 
-      res.json(user.rows[0]);
+      return res.json(user.rows[0]);
     } catch (err) {
       console.error(err);
     }
   } else {
-    res.json(false);
+    return res.json(false);
   }
 });
 
 router.get("/login-success", (req, res, next) => {
-  res.json(req.user);
+  return res.json(req.user);
 });
 
 router.get("/login-failure", (req, res, next) => {
-  res.json(false);
+  return res.json(false);
 });
 
 module.exports = router;

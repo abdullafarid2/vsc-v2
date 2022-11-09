@@ -9,12 +9,14 @@ import useAuth from "./useAuth";
 import findIndex from "lodash.findindex";
 import Toast from "react-native-toast-message";
 import useNotifications from "./useNotifications";
+import useOrders from "./useOrders";
 
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
   const { user, url } = useAuth();
   const { newOrderNotification } = useNotifications();
+  const { getPendingOrders } = useOrders();
 
   const [cart, setCart] = useState([]);
   const [cartItems, setCartItems] = useState([]);
@@ -115,6 +117,7 @@ export const CartProvider = ({ children }) => {
       });
 
       const data = await res.json();
+      console.log(data);
 
       if (data.error) {
         setError(data.cart);
@@ -122,12 +125,22 @@ export const CartProvider = ({ children }) => {
         setCart([]);
         setCartItems([]);
 
-        newOrderNotification();
+        data.map(async (order) => {
+          await newOrderNotification(
+            user.id,
+            order.owner_id,
+            order.shopid,
+            order.oid,
+            order.timestamp
+          );
+        });
 
         Toast.show({
           type: "success",
           text1: "Order placed successfully!",
         });
+
+        getPendingOrders();
       }
     } catch (e) {
       console.log(e.message);

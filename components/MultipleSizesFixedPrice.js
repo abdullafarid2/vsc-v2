@@ -22,7 +22,7 @@ const MultipleSizesFixedPrice = ({
     useCallback(() => {
       setSizes([]);
       generateCells();
-    }, [])
+    }, [fixedPrice])
   );
 
   return (

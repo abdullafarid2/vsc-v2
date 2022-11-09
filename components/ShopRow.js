@@ -29,7 +29,7 @@ const Shop = ({ shopDetails }) => {
       <View className="flex-1 py-3 pl-3 pr-1 rounded-lg">
         <Text className="text-lg font-bold">{shopDetails.name}</Text>
         <Text className="text-[#838383] font-semibold">
-          {shopDetails.subcategories.join(", ")}
+          {shopDetails.category_name}
         </Text>
         <View className="flex-row mt-1">
           {shopDetails.rating &&

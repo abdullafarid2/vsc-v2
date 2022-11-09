@@ -20,16 +20,16 @@ const ShopCreatedSuccess = () => {
 
       <Text className="font-bold text-xl mt-2">Success!</Text>
 
-      <Text className="font-semibold text-lg mt-2">
+      <Text className="font-medium text-lg mt-2">
         Your shop has been created successfully.
       </Text>
 
-      <Text className="font-semibold text-lg mt-2 text-center">
+      <Text className="font-medium text-lg mt-2 text-center">
         Tap on the button below to start customizing your shop.
       </Text>
 
       <TouchableOpacity
-        onPress={() => navigation.navigate("Shops")}
+        onPress={() => navigation.popToTop()}
         className="bg-blue-500 rounded rounded-lg p-3 w-full mt-5"
       >
         <Text className="font-semibold text-white text-lg text-center">

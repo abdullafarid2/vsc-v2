@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { CheckIcon } from "react-native-heroicons/outline";
+import { CheckIcon, XMarkIcon } from "react-native-heroicons/outline";
 import { useTailwind } from "tailwindcss-react-native";
 
 const SelectListModal = ({
@@ -28,9 +28,21 @@ const SelectListModal = ({
     >
       <SafeAreaView className="flex-1 bg-white">
         <View className="flex-1 bg-white px-3">
-          <Text className="text-black font-bold text-xl mt-4">
-            Select {title}
-          </Text>
+          <View className={"flex-row justify-between items-center"}>
+            <Text className="text-black font-bold text-xl mt-4">
+              Select {title}
+            </Text>
+            <View>
+              <TouchableOpacity
+                onPress={() => setModalVisible(!modalVisible)}
+                className={
+                  "bg-gray-300 rounded rounded-full justify-center p-2"
+                }
+              >
+                <XMarkIcon size={20} style={tw("text-black")} />
+              </TouchableOpacity>
+            </View>
+          </View>
 
           <FlatList
             data={data}

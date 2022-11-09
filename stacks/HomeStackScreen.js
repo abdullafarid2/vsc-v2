@@ -16,6 +16,7 @@ import { useTailwind } from "tailwindcss-react-native";
 import SearchProductScreen from "../screens/SearchProductScreen";
 import ProductScreen from "../screens/ProductScreen";
 import CreateProduct from "../screens/CreateProductScreen";
+import OrderDetailsScreen from "../screens/OrderDetailsScreen";
 
 const HomeStack = createNativeStackNavigator();
 
@@ -66,6 +67,10 @@ const HomeStackScreen = () => {
         <HomeStack.Screen
           name="CreateAddress"
           component={CreateAddressScreen}
+        />
+        <HomeStack.Screen
+          name={"OrderDetails"}
+          component={OrderDetailsScreen}
         />
       </HomeStack.Group>
 

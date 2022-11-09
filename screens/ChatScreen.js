@@ -122,6 +122,7 @@ const ChatScreen = () => {
                   message={message?.message}
                   me={true}
                   name={chat.shop.name}
+                  timestamp={message?.timestamp}
                   key={i}
                 />
               ) : (
@@ -129,6 +130,7 @@ const ChatScreen = () => {
                   message={message?.message}
                   me={false}
                   name={chat.shop.name}
+                  timestamp={message?.timestamp}
                   key={i}
                 />
               )

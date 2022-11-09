@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {
   FlatList,
+  Image,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -8,6 +9,7 @@ import {
   SafeAreaView,
   ScrollView,
   Text,
+  TextInput as RNTextInput,
   TextInput,
   TouchableOpacity,
   View,
@@ -18,6 +20,16 @@ import { useNavigation } from "@react-navigation/native";
 import { CheckIcon } from "react-native-heroicons/outline";
 import { useTailwind } from "tailwindcss-react-native";
 import SelectListModal from "../components/SelectListModal";
+import { TextInput as TextInputPaper } from "react-native-paper";
+import {
+  verifyCR,
+  verifyEmail,
+  verifyPhoneNumber,
+  verifyShopName,
+  verifyText,
+} from "../utils/formValidation";
+import { launchImageLibraryAsync } from "expo-image-picker";
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 
 const CreateShop = () => {
   const tw = useTailwind();
@@ -30,7 +42,42 @@ const CreateShop = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
+  const [categoryId, setCategoryId] = useState("");
   const [categories, setCategories] = useState([]);
+  const [logo, setLogo] = useState("");
+
+  const [shopNameFocused, setShopNameFocused] = useState(false);
+  const [crFocused, setCrFocused] = useState(false);
+  const [emailFocused, setEmailFocused] = useState(false);
+  const [phoneNumberFocused, setPhoneNumberFocused] = useState(false);
+  const [descriptionFocused, setDescriptionFocused] = useState(false);
+
+  const pickImage = async (setImage) => {
+    // No permissions request is necessary for launching the image library
+    let result = await launchImageLibraryAsync({
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.cancelled) {
+      setImage(result.uri);
+    }
+  };
+
+  const valid =
+    shopName !== "" &&
+    cr !== "" &&
+    email !== "" &&
+    phoneNumber !== "" &&
+    description !== "" &&
+    category !== "" &&
+    logo !== "" &&
+    verifyShopName(shopName) &&
+    verifyCR(cr) &&
+    verifyEmail(email) &&
+    verifyPhoneNumber(phoneNumber) &&
+    verifyText(description);
 
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -51,6 +98,11 @@ const CreateShop = () => {
   useEffect(() => {
     getCategories();
   }, []);
+
+  useEffect(() => {
+    categories.length > 0 &&
+      setCategoryId(categories?.filter((c) => c.name === category)[0].id);
+  }, [category]);
 
   return (
     <SafeAreaView className="flex-1 bg-blue-500">
@@ -73,71 +125,131 @@ const CreateShop = () => {
               Create your own Shop!
             </Text>
 
+            <View className="flex flex-row mt-6 items-center">
+              <View className="flex-1">
+                <Text className="font-semibold text-lg">Logo</Text>
+                <TouchableOpacity onPress={() => pickImage(setLogo)}>
+                  <Text className="text-blue-500 font-semibold text-lg mt-2">
+                    Select Image
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              <TouchableOpacity
+                className="bg-gray-400 rounded rounded-full h-24 w-24"
+                onPress={() => pickImage(setLogo)}
+              >
+                {logo && (
+                  <Image
+                    source={{ uri: logo }}
+                    className="h-full w-full rounded rounded-full"
+                  />
+                )}
+              </TouchableOpacity>
+            </View>
+
             <View className="mt-6">
-              <Text className="text-lg font-semibold">Shop Name</Text>
-              <TextInput
+              <TextInputPaper
+                mode="flat"
+                label="Shop Name"
+                placeholder="Shop Name"
                 value={shopName}
                 onChangeText={(text) => setShopName(text)}
-                className="flex-1 border-b h-9 border-gray-400"
-                placeholder="Shop Name"
+                underlineColor="#0099F9"
+                activeUnderlineColor="#0099F9"
+                className="bg-white mb-4 flex-1"
+                onFocus={() => setShopNameFocused(true)}
+                error={!verifyShopName(shopName) && shopNameFocused}
               />
+              {!verifyShopName(shopName) && shopNameFocused && (
+                <Text className={"text-red-700"}>
+                  Please enter a valid name.
+                </Text>
+              )}
             </View>
 
             <View className="mt-6">
-              <Text className="text-lg font-semibold">
-                Commercial Registration No. (CR)
-              </Text>
-              <TextInput
+              <TextInputPaper
+                mode="flat"
+                label="Commercial Registration No. (CR)"
+                placeholder="CR"
                 value={cr}
                 onChangeText={(text) => setCr(text)}
-                className="flex-1 border-b h-9 border-gray-400"
-                placeholder="CR"
+                underlineColor="#0099F9"
+                activeUnderlineColor="#0099F9"
+                className="bg-white mb-4 flex-1"
+                onFocus={() => setCrFocused(true)}
+                error={!verifyCR(cr) && crFocused}
               />
+
+              {!verifyCR(cr) && crFocused && (
+                <Text className={"text-red-700"}>
+                  Please enter a CR (eg. 1234-1).
+                </Text>
+              )}
             </View>
 
             <View className="mt-6">
-              <Text className="text-lg font-semibold">Email</Text>
-              <Text className="font-semibold text-gray-500">
-                This can be your personal email or your shop's email if
-                available
-              </Text>
-              <TextInput
+              <TextInputPaper
+                mode="flat"
+                label="Shop Email"
+                placeholder="Email"
                 value={email}
                 onChangeText={(text) => setEmail(text)}
-                className="flex-1 border-b h-9 border-gray-400"
-                placeholder="Email"
+                underlineColor="#0099F9"
+                activeUnderlineColor="#0099F9"
+                className="bg-white mb-4 flex-1"
+                onFocus={() => setEmailFocused(true)}
+                error={!verifyEmail(email) && emailFocused}
               />
+              {!verifyEmail(email) && emailFocused && (
+                <Text className={"text-red-700"}>
+                  Please enter a valid email.
+                </Text>
+              )}
             </View>
 
             <View className="mt-6">
-              <Text className="text-lg font-semibold">Phone Number</Text>
-              <Text className="font-semibold text-gray-500">
-                This can be your personal number or your shop's number if
-                available
-              </Text>
-              <TextInput
+              <TextInputPaper
+                label="Phone Number"
+                underlineColor="#0099F9"
+                activeUnderlineColor="#0099F9"
+                className="bg-white mb-4"
                 value={phoneNumber}
                 onChangeText={(text) => setPhoneNumber(text)}
-                className="flex-1 border-b h-9 border-gray-400"
-                placeholder="Phone Number"
-                keyboardType="numeric"
+                render={(props) => (
+                  <RNTextInput {...props} keyboardType="numeric" />
+                )}
+                onFocus={() => setPhoneNumberFocused(true)}
+                error={!verifyPhoneNumber(phoneNumber) && phoneNumberFocused}
               />
+              {!verifyPhoneNumber(phoneNumber) && phoneNumberFocused && (
+                <Text className={"text-red-700"}>
+                  Please enter a valid phone number.
+                </Text>
+              )}
             </View>
 
             <View className="mt-6">
-              <Text className="text-lg font-semibold">Description</Text>
-              <Text className="font-semibold text-gray-500">
-                Give a brief description of your shop
-              </Text>
-              <TextInput
+              <TextInputPaper
+                mode="outlined"
+                label="Shop description"
                 value={description}
                 onChangeText={(text) => setDescription(text)}
-                className="flex-1 border rounded-lg border-gray-400 p-2 mt-3 h-20"
-                placeholder="Description"
+                underlineColor="#0099F9"
+                activeUnderlineColor="#0099F9"
+                outlineColor="#0099F9"
+                activeOutlineColor="#0099F9"
                 multiline={true}
-                numberOfLines={5}
-                textAlignVertical="top"
+                className="bg-white mb-4 max-h-40"
+                onFocus={() => setDescriptionFocused(true)}
+                error={!verifyText(description) && descriptionFocused}
               />
+              {!verifyText(description) && descriptionFocused && (
+                <Text className={"text-red-700"}>
+                  Please enter a valid description.
+                </Text>
+              )}
             </View>
 
             <View className="mt-6">
@@ -166,10 +278,12 @@ const CreateShop = () => {
                     email,
                     phoneNumber,
                     description,
-                    category,
+                    category: categoryId,
+                    logo,
                   },
                 })
               }
+              disabled={!valid}
             >
               <Text className="text-white font-semibold text-lg">Next</Text>
             </TouchableOpacity>

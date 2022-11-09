@@ -51,7 +51,7 @@ const ShopTitle = ({ shopDetails, products }) => {
           <Text className="text-lg font-bold">{shopDetails.name}</Text>
 
           <Text className="text-gray-500 font-semibold mt-1">
-            {shopDetails.subcategories.join(", ")}
+            {shopDetails.category_name}
           </Text>
 
           <View className="flex-row mt-1 items-center">

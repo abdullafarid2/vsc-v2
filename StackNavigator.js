@@ -26,6 +26,7 @@ import CartStackScreen from "./stacks/CartStack";
 import { useTailwind } from "tailwindcss-react-native";
 import useCart from "./hooks/useCart";
 import useNotifications from "./hooks/useNotifications";
+import useOrders from "./hooks/useOrders";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -35,6 +36,7 @@ const StackNavigator = () => {
   const { user } = useAuth();
   const { cart, numberOfItems } = useCart();
   const { numberOfNotifications } = useNotifications();
+  const { pendingOrders } = useOrders();
 
   return (
     <>
@@ -86,7 +88,11 @@ const StackNavigator = () => {
           <Tab.Screen
             name="UserShopsStack"
             component={UserShopsStackScreen}
-            options={{ tabBarLabel: "My Shops" }}
+            options={{
+              tabBarLabel: "My Shops",
+              tabBarBadge: pendingOrders.length,
+              tabBarBadgeStyle: tw(`${pendingOrders.length === 0 && "hidden"}`),
+            }}
           />
           <Tab.Screen
             name="CartStack"

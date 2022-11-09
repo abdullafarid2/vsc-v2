@@ -16,7 +16,7 @@ export const AuthProvider = ({ children }) => {
   const [loadingInitial, setLoadingInitial] = useState(true);
   const [error, setError] = useState(null);
 
-  const url = "http://192.168.100.78:3000";
+  const url = "http://192.168.100.3:3000";
 
   const getUser = () => {
     return user;
@@ -67,6 +67,8 @@ export const AuthProvider = ({ children }) => {
       });
 
       const data = await res.json();
+
+      console.log(data);
 
       if (!data) {
         setUser(null);

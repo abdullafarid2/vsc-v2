@@ -32,3 +32,21 @@ export function verifyCpr(cpr) {
 
   return regex.test(cpr);
 }
+
+export function verifyShopName(name) {
+  const regex = /^[a-z\s,.'-]{1,50}$/i;
+
+  return regex.test(name);
+}
+
+export function verifyText(text) {
+  const regex = /^[a-zA-z,.\s\d'"-]{1,255}$/;
+
+  return regex.test(text);
+}
+
+export function verifyCR(cr) {
+  const regex = /^\d{1,7}-\d{1,2}$/;
+
+  return regex.test(cr);
+}

@@ -9,6 +9,7 @@ import { LogBox } from "react-native";
 import { CartProvider } from "./hooks/useCart";
 import { useState } from "react";
 import { NotificationProvider } from "./hooks/useNotifications";
+import { OrderProvider } from "./hooks/useOrders";
 LogBox.ignoreLogs(["AsyncStorage", "Cannot update a component"]);
 
 export default function App() {
@@ -19,10 +20,12 @@ export default function App() {
           <AuthProvider>
             <ShopProvider>
               <NotificationProvider>
-                <CartProvider>
-                  <StackNavigator />
-                  <Toast />
-                </CartProvider>
+                <OrderProvider>
+                  <CartProvider>
+                    <StackNavigator />
+                    <Toast />
+                  </CartProvider>
+                </OrderProvider>
               </NotificationProvider>
             </ShopProvider>
           </AuthProvider>

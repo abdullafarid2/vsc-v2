@@ -5,36 +5,37 @@ import {
   TouchableOpacity,
   FlatList,
 } from "react-native";
-import React, { useState, useEffect } from "react";
-import { useNavigation } from "@react-navigation/native";
-import useAuth from "../hooks/useAuth";
+import React, { useCallback } from "react";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
 import ShopRow from "../components/ShopRow";
 import { PlusCircleIcon } from "react-native-heroicons/outline";
 import useShops from "../hooks/useShops";
 import { useTailwind } from "tailwindcss-react-native";
+import { Badge } from "react-native-paper";
+import useOrders from "../hooks/useOrders";
 
 const UserShopsScreen = () => {
   const tw = useTailwind();
   const navigation = useNavigation();
-  const { url, user } = useAuth();
-  const { shops } = useShops();
+  const { userShops } = useShops();
+  const {
+    pendingOrders,
+    getPendingOrders,
+    getOngoingOrders,
+    getDeliveredOrders,
+    getCancelledOrders,
+  } = useOrders();
 
-  const [userShops, setUserShops] = useState([]);
+  useFocusEffect(
+    useCallback(() => {
+      getPendingOrders();
+      getOngoingOrders();
+      getDeliveredOrders();
+      getCancelledOrders();
+    }, [])
+  );
 
-  const getUserShops = async () => {
-    setUserShops(shops.filter((shop) => shop.owner_id === user.id));
-  };
-
-  useEffect(() => {
-    getUserShops();
-  }, []);
-
-  useEffect(() => {
-    const willFocusSubscription = navigation.addListener("focus", () => {
-      getUserShops();
-    });
-  }, [shops]);
   return (
     <SafeAreaView className={"flex-1 bg-white"}>
       <StatusBar />
@@ -43,11 +44,29 @@ const UserShopsScreen = () => {
         <FlatList
           ListHeaderComponent={
             <>
-              <View className={"flex-row items-center"}>
-                <Text className={"font-bold text-black text-xl"}>
-                  My shops{" "}
-                </Text>
-                <Text>({userShops.length}/3)</Text>
+              <View className={"flex-row items-center justify-between"}>
+                <View className={"flex-row items-center"}>
+                  <Text className={"font-bold text-black text-xl"}>
+                    My shops{" "}
+                  </Text>
+                  <Text>({userShops.length}/3)</Text>
+                </View>
+                <View>
+                  <TouchableOpacity
+                    onPress={() => navigation.navigate("Orders")}
+                    className={
+                      "flex-row items-center bg-blue-500 p-2 rounded rounded-lg"
+                    }
+                    activeOpacity={0.8}
+                  >
+                    <Text className={"text-white font-medium mr-3"}>
+                      Orders
+                    </Text>
+                    <Badge size={25} style={tw("bg-red-500 font-semibold")}>
+                      {pendingOrders.length}
+                    </Badge>
+                  </TouchableOpacity>
+                </View>
               </View>
             </>
           }

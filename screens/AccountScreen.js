@@ -1,20 +1,35 @@
 import { View, Text, TouchableOpacity, SafeAreaView } from "react-native";
-import React, { useLayoutEffect } from "react";
+import React, { useLayoutEffect, useEffect } from "react";
 import { useNavigation } from "@react-navigation/native";
 import useAuth from "../hooks/useAuth";
 import { ChevronRightIcon } from "react-native-heroicons/outline";
 import Header from "../components/Header";
 import { useTailwind } from "tailwindcss-react-native";
+import useOrders from "../hooks/useOrders";
 
 const AccountScreen = () => {
   const navigation = useNavigation();
   const tw = useTailwind();
+
+  const {
+    getMyPendingOrders,
+    getMyOngoingOrders,
+    getMyDeliveredOrders,
+    getMyCancelledOrders,
+  } = useOrders();
 
   const { logout } = useAuth();
   useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: false,
     });
+  }, []);
+
+  useEffect(() => {
+    getMyPendingOrders();
+    getMyOngoingOrders();
+    getMyDeliveredOrders();
+    getMyCancelledOrders();
   }, []);
 
   return (

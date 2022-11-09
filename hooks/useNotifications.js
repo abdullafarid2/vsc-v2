@@ -7,9 +7,11 @@ import React, {
 } from "react";
 import useAuth from "./useAuth";
 import {
+  addDoc,
   collection,
   doc,
   onSnapshot,
+  orderBy,
   query,
   setDoc,
   where,
@@ -27,19 +29,70 @@ export const NotificationProvider = ({ children }) => {
   const newOrderNotification = async (
     userId,
     ownerId,
-    receiverId,
     shopId,
     orderId,
-    message
+    timestamp
   ) => {
-    await setDoc(doc(db, "notifications"), {
+    await addDoc(collection(db, "notifications"), {
       type: "New order",
       customerId: userId,
       ownerId,
       receiverId: ownerId,
-      message,
       orderId,
-      status: "Pending",
+      shopId,
+      timestamp,
+      message:
+        "You have received a new order. Please accept or decline your order as soon as possible!",
+      read: false,
+    });
+  };
+
+  const orderConfirmationNotification = async (
+    accepted,
+    customerId,
+    ownerId,
+    shopId,
+    expected_date,
+    timestamp
+  ) => {
+    await addDoc(collection(db, "notifications"), {
+      type: "Order confirmation",
+      accepted,
+      customerId,
+      receiverId: customerId,
+      ownerId,
+      shopId,
+      timestamp,
+      message: accepted
+        ? "Your order has been accepted. Expected delivery date: " +
+          expected_date
+        : "Your order has been declined.",
+      read: false,
+    });
+  };
+
+  const orderDelivered = async (customerId, ownerId, shopId) => {
+    await addDoc(collection(db, "notifications"), {
+      type: "Order Delivered",
+      customerId,
+      receiverId: customerId,
+      ownerId,
+      shopId,
+      timestamp: new Date().toISOString(),
+      message: "Your order has been delivered.",
+      read: false,
+    });
+  };
+
+  const orderCancelled = async (customerId, ownerId, shopId) => {
+    await addDoc(collection(db, "notifications"), {
+      type: "Order Cancelled",
+      customerId,
+      receiverId: customerId,
+      ownerId,
+      shopId,
+      timestamp: new Date().toISOString(),
+      message: "Your order has been cancelled.",
       read: false,
     });
   };
@@ -47,14 +100,16 @@ export const NotificationProvider = ({ children }) => {
   useEffect(() => {
     if (user) {
       return onSnapshot(
-        query(
-          collection(db, "notifications"),
-          where("receiverId", "==", user.id)
-        ),
+        query(collection(db, "notifications"), orderBy("timestamp", "desc")),
         (querySnapshot) => {
           setNotifications([]);
           querySnapshot.forEach((doc) => {
-            setNotifications((notifications) => [...notifications, doc.data()]);
+            if (doc.data().receiverId == user.id) {
+              setNotifications((notifications) => [
+                ...notifications,
+                { id: doc.id, ...doc.data() },
+              ]);
+            }
           });
         }
       );
@@ -62,11 +117,20 @@ export const NotificationProvider = ({ children }) => {
   }, [user]);
 
   useEffect(() => {
-    setNumberOfNotifications(notifications.length);
+    setNumberOfNotifications(
+      notifications.filter((n) => n.read === false).length
+    );
   }, [notifications]);
 
   const memoedValue = useMemo(
-    () => ({ notifications, numberOfNotifications, newOrderNotification }),
+    () => ({
+      notifications,
+      numberOfNotifications,
+      newOrderNotification,
+      orderConfirmationNotification,
+      orderDelivered,
+      orderCancelled,
+    }),
     [notifications, numberOfNotifications]
   );
   return (

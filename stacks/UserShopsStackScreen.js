@@ -9,6 +9,8 @@ import ShopScreen from "../screens/ShopScreen";
 import SearchProductScreen from "../screens/SearchProductScreen";
 import CreateProductScreen from "../screens/CreateProductScreen";
 import ProductScreen from "../screens/ProductScreen";
+import OrdersScreen from "../screens/OrdersScreen";
+import OrderDetailsScreen from "../screens/OrderDetailsScreen";
 
 const UserShopsStack = createNativeStackNavigator();
 
@@ -35,6 +37,11 @@ const UserShopsStackScreen = () => {
       <UserShopsStack.Screen
         name={"CreateProduct"}
         component={CreateProductScreen}
+      />
+      <UserShopsStack.Screen name={"Orders"} component={OrdersScreen} />
+      <UserShopsStack.Screen
+        name={"OrderDetails"}
+        component={OrderDetailsScreen}
       />
     </UserShopsStack.Navigator>
   );

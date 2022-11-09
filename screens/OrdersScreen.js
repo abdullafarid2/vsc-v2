@@ -1,28 +1,24 @@
-import { View, Text, TouchableOpacity, FlatList } from "react-native";
-import React, { useEffect, useState, useLayoutEffect } from "react";
-import useOrders from "../hooks/useOrders";
-import { useNavigation } from "@react-navigation/native";
+import React, { useLayoutEffect, useState, useCallback } from "react";
+import { FlatList, Text, TouchableOpacity, View } from "react-native";
+import { Button, Divider, Menu } from "react-native-paper";
 import { useTailwind } from "tailwindcss-react-native";
-import { Divider, Menu } from "react-native-paper";
-import { ChevronDownIcon } from "react-native-heroicons/outline";
-import OrderRow from "../components/OrderRow";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { ChevronDownIcon } from "react-native-heroicons/outline";
+import useOrders from "../hooks/useOrders";
+import OrderRow from "../components/OrderRow";
 
-const UserOrdersScreen = () => {
+const Orders = () => {
   const navigation = useNavigation();
   const tw = useTailwind();
 
-  const {
-    myPendingOrders,
-    myOngoingOrders,
-    myDeliveredOrders,
-    myCancelledOrders,
-  } = useOrders();
+  const { pendingOrders, ongoingOrders, deliveredOrders, cancelledOrders } =
+    useOrders();
 
   const [visible, setVisible] = useState(false);
   const [filter, setFilter] = useState({
     name: "Pending",
-    items: myPendingOrders,
+    items: pendingOrders,
   });
   const openMenu = () => setVisible(true);
   const closeMenu = () => setVisible(false);
@@ -56,7 +52,7 @@ const UserOrdersScreen = () => {
           >
             <Menu.Item
               onPress={() => {
-                setFilter({ name: "Pending", items: myPendingOrders });
+                setFilter({ name: "Pending", items: pendingOrders });
                 closeMenu();
               }}
               title={"Pending"}
@@ -64,7 +60,7 @@ const UserOrdersScreen = () => {
             <Divider style={tw("bg-gray-300")} />
             <Menu.Item
               onPress={() => {
-                setFilter({ name: "Ongoing", items: myOngoingOrders });
+                setFilter({ name: "Ongoing", items: ongoingOrders });
                 closeMenu();
               }}
               title={"Ongoing"}
@@ -72,7 +68,7 @@ const UserOrdersScreen = () => {
             <Divider style={tw("bg-gray-300")} />
             <Menu.Item
               onPress={() => {
-                setFilter({ name: "Delivered", items: myDeliveredOrders });
+                setFilter({ name: "Delivered", items: deliveredOrders });
                 closeMenu();
               }}
               title={"Delivered"}
@@ -80,7 +76,7 @@ const UserOrdersScreen = () => {
             <Divider style={tw("bg-gray-300")} />
             <Menu.Item
               onPress={() => {
-                setFilter({ name: "Cancelled", items: myCancelledOrders });
+                setFilter({ name: "Cancelled", items: cancelledOrders });
                 closeMenu();
               }}
               title={"Cancelled"}
@@ -98,4 +94,4 @@ const UserOrdersScreen = () => {
   );
 };
 
-export default UserOrdersScreen;
+export default Orders;
