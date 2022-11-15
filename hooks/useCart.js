@@ -34,7 +34,13 @@ export const CartProvider = ({ children }) => {
   const calculateTotal = (data) => {
     setTotal(0);
     data.map((item) => {
-      setTotal((total) => total + item.price * item.quantity);
+      item.discount_value
+        ? setTotal(
+            (total) =>
+              total +
+              item.price * ((100 - item.discount_value) / 100) * item.quantity
+          )
+        : setTotal((total) => total + item.price * item.quantity);
     });
   };
 
@@ -117,7 +123,6 @@ export const CartProvider = ({ children }) => {
       });
 
       const data = await res.json();
-      console.log(data);
 
       if (data.error) {
         setError(data.cart);

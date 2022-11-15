@@ -35,16 +35,8 @@ const OrderDetails = () => {
   const route = useRoute();
   const { url, user } = useAuth();
   const { shops } = useShops();
-  const {
-    confirmOrder,
-    getPendingOrders,
-    getOngoingOrders,
-    getDeliveredOrders,
-    getCancelledOrders,
-    updateDeliveryDate,
-    deliverOrder,
-    cancelOrder,
-  } = useOrders();
+  const { confirmOrder, updateDeliveryDate, deliverOrder, cancelOrder } =
+    useOrders();
   const { order, dateFormat: date, statusColor } = route.params;
 
   const [customer, setCustomer] = useState();
@@ -272,23 +264,51 @@ const OrderDetails = () => {
                 Order Summary
               </Text>
 
-              {items.map((item) => (
-                <View className={"flex-1 flex-row mb-2"} key={item.iid}>
+              {items.map((item, index) => (
+                <View className={"flex-1 flex-row mb-2"} key={index}>
                   <Text className={"text-gray-700 mr-3"}>{item.quantity}x</Text>
-                  <Text className={"flex-1 text-gray-700"}>{item.name}</Text>
-                  <Text className={"text-gray-700"}>
-                    {(
-                      Math.round(item.price * item.quantity * 1000) / 1000
-                    ).toFixed(3)}{" "}
-                    BD
-                  </Text>
+                  {item.size ? (
+                    <>
+                      <Text className={"text-gray-700 mr-2"}>{item.name}</Text>
+                      <Text className={"flex-1 text-gray-700"}>
+                        ({item.size})
+                      </Text>
+                    </>
+                  ) : (
+                    <>
+                      <Text className={"flex-1 text-gray-700"}>
+                        {item.name}
+                      </Text>
+                    </>
+                  )}
+
+                  {item.discount_value ? (
+                    <Text className={"text-gray-700"}>
+                      {(
+                        Math.round(
+                          item.price *
+                            ((100 - item.discount_value) / 100) *
+                            item.quantity *
+                            1000
+                        ) / 1000
+                      ).toFixed(3)}{" "}
+                      BD
+                    </Text>
+                  ) : (
+                    <Text className={"text-gray-700"}>
+                      {(
+                        Math.round(item.price * item.quantity * 1000) / 1000
+                      ).toFixed(3)}{" "}
+                      BD
+                    </Text>
+                  )}
                 </View>
               ))}
 
               <View className={"flex-row flex-1"}>
                 <Text className={"flex-1 text-lg"}>Total</Text>
                 <Text className={"text-lg"}>
-                  {(Math.round(calculateTotal() * 1000) / 1000).toFixed(3)} BD
+                  {(Math.round(order.total * 1000) / 1000).toFixed(3)} BD
                 </Text>
               </View>
             </View>

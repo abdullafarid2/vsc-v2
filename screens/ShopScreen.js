@@ -5,11 +5,14 @@ import ShopTitle from "../components/ShopTitle";
 import { useFocusEffect, useRoute } from "@react-navigation/native";
 import ProductsList from "../components/ProductsList";
 import useAuth from "../hooks/useAuth";
+import useOffers from "../hooks/useOffers";
 
 const ShopScreen = () => {
   const route = useRoute();
   const { url } = useAuth();
   const { ...shopDetails } = route.params;
+
+  const { getOffers } = useOffers();
 
   const [products, setProducts] = useState([]);
 
@@ -33,6 +36,7 @@ const ShopScreen = () => {
 
   useFocusEffect(
     useCallback(() => {
+      getOffers(shopDetails.id);
       getProducts();
     }, [])
   );

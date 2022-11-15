@@ -31,6 +31,8 @@ const UserOrdersScreen = () => {
     navigation.setOptions({
       headerShown: false,
     });
+
+    console.log(filter.items);
   }, []);
 
   return (

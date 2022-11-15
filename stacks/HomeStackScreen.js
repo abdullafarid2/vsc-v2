@@ -17,6 +17,7 @@ import SearchProductScreen from "../screens/SearchProductScreen";
 import ProductScreen from "../screens/ProductScreen";
 import CreateProduct from "../screens/CreateProductScreen";
 import OrderDetailsScreen from "../screens/OrderDetailsScreen";
+import ReviewsScreen from "../screens/ReviewsScreen";
 
 const HomeStack = createNativeStackNavigator();
 
@@ -34,6 +35,7 @@ const HomeStackScreen = () => {
         />
         <HomeStack.Screen name={"CreateProduct"} component={CreateProduct} />
         <HomeStack.Screen name="Product" component={ProductScreen} />
+        <HomeStack.Screen name={"Reviews"} component={ReviewsScreen} />
       </HomeStack.Group>
 
       <HomeStack.Screen

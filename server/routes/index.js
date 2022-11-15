@@ -4,6 +4,7 @@ const db = require("../db");
 const bcrypt = require("bcrypt");
 const { isAuth, isAdmin } = require("./authMiddleware");
 const { pool } = require("../db");
+const { promise } = require("bcrypt/promises");
 
 router.post(
   "/login",
@@ -181,7 +182,7 @@ router.post("/createShop", async (req, res) => {
     };
 
     const query = await db.query(
-      "INSERT INTO shops (address, category, cr, description, email, phone, name, owner_id, logo, status, subcategories ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *;",
+      "INSERT INTO shops (address, category, cr, description, email, phone, name, owner_id, logo, status ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *;",
       [
         address,
         category,
@@ -193,7 +194,6 @@ router.post("/createShop", async (req, res) => {
         owner,
         logo,
         status,
-        ["TEST"],
       ]
     );
 
@@ -201,6 +201,24 @@ router.post("/createShop", async (req, res) => {
     else res.json(query.rows[0]);
   } catch (err) {
     console.log(err.message);
+    res.json(false);
+  }
+});
+
+router.put("/updateShop", async (req, res) => {
+  try {
+    const { shopId, name, email, phone, description, category, logo } =
+      req.body;
+
+    const updatedShop = await db.query(
+      "UPDATE shops SET name = $1, email = $2, phone = $3, description = $4, category = $5, logo = $6 WHERE id = $7 RETURNING *",
+      [name, email, phone, description, category, logo, shopId]
+    );
+
+    if (updatedShop.rows.length === 0) return res.json(false);
+    else res.json(true);
+  } catch (e) {
+    console.log(e.message);
     res.json(false);
   }
 });
@@ -440,14 +458,14 @@ router.get("/products/:shopId", async (req, res) => {
     const { shopId } = req.params;
 
     const q = await db.query(
-      "SELECT * FROM products WHERE shop_id = $1 ORDER BY id ASC;",
+      "SELECT * FROM products WHERE shop_id = $1 AND deleted IS NOT TRUE ORDER BY id ASC;",
       [shopId]
     );
 
     if (q.rows.length === 0) return res.status(500).json(false);
 
     const query = await db.query(
-      "SELECT * FROM products FULL JOIN inventory ON products.id = inventory.pid WHERE products.shop_id = $1 ORDER BY inventory.id ASC;",
+      "SELECT * FROM products FULL JOIN inventory ON products.id = inventory.pid WHERE products.shop_id = $1 AND products.deleted IS NOT TRUE ORDER BY inventory.id ASC;",
       [shopId]
     );
 
@@ -463,6 +481,157 @@ router.get("/products/:shopId", async (req, res) => {
     });
 
     res.json(products);
+  } catch (e) {
+    console.log(e.message);
+    res.json(false);
+  }
+});
+
+router.get("/product/:productId", async (req, res) => {
+  try {
+    const { productId } = req.params;
+
+    const product = await db.query(
+      "SELECT * FROM products WHERE id = $1 AND deleted IS NOT TRUE",
+      [productId]
+    );
+
+    if (product.rows.length === 0) return res.json(null);
+
+    const inventory = await db.query(
+      "SELECT * FROM inventory WHERE pid = $1 ORDER BY id ASC",
+      [productId]
+    );
+
+    product.rows[0].sizes = inventory.rows;
+
+    res.json(product.rows);
+  } catch (e) {
+    console.log(e.message);
+    res.json(null);
+  }
+});
+
+router.put("/product", async (req, res) => {
+  try {
+    const { product } = req.body;
+
+    const updateProduct = await db.query(
+      "UPDATE products SET name = $1, description = $2, photo = $3 WHERE id = $4 RETURNING *",
+      [product.name, product.description, product.photo, product.id]
+    );
+
+    let sizes = [];
+
+    await Promise.all(
+      product.sizes.map(async (size) => {
+        const updateInventory = await db.query(
+          "UPDATE inventory SET price = $1, quantity = $2 WHERE id = $3 RETURNING *;",
+          [size.price, size.quantity, size.id]
+        );
+
+        sizes.push(updateInventory.rows[0]);
+      })
+    );
+
+    const newProduct = {
+      ...updateProduct.rows[0],
+      sizes,
+    };
+
+    res.json(newProduct);
+  } catch (e) {
+    console.log(e.message);
+    res.json(false);
+  }
+});
+
+router.put("/product/delete", async (req, res) => {
+  try {
+    const { productId } = req.body;
+
+    console.log(productId);
+
+    const product = await db.query(
+      "UPDATE products SET deleted = true WHERE id = $1 RETURNING *;",
+      [productId]
+    );
+
+    if (product.rows.length === 0) return res.json(false);
+
+    res.json(true);
+  } catch (e) {
+    console.log(e.message);
+    res.json(false);
+  }
+});
+
+router.get("/offers/:shopId", async (req, res) => {
+  try {
+    const { shopId } = req.params;
+
+    const date = new Date();
+
+    const offers = await db.query(
+      "SELECT * FROM offers WHERE sid = $1 AND start_date < $2 AND end_date > $2;",
+      [shopId, date]
+    );
+
+    res.json(offers.rows);
+  } catch (e) {
+    console.log(e.message);
+    res.json([]);
+  }
+});
+
+router.get("/offers/product/:productId", async (req, res) => {
+  try {
+    const { productId } = req.params;
+
+    const date = new Date();
+
+    const offers = await db.query(
+      "SELECT * FROM offers WHERE pid = $1 AND start_date < $2 AND end_date > $2;",
+      [productId, date]
+    );
+
+    if (offers.rows.length === 0) return res.json(null);
+    else return res.json(offers.rows[0]);
+  } catch (e) {
+    console.log(e.message);
+    res.json([]);
+  }
+});
+
+router.post("/offer/add", async (req, res) => {
+  try {
+    const { shopId, productId, discount_value, startDate, endDate } = req.body;
+
+    const offer = await db.query(
+      "INSERT INTO offers (sid, pid, discount_value, start_date, end_date) VALUES ($1, $2, $3, $4, $5) RETURNING *;",
+      [shopId, productId, discount_value, startDate, endDate]
+    );
+
+    if (offer.rows.length === 0) return res.json(false);
+    else return res.json(true);
+  } catch (e) {
+    console.log(e.message);
+    res.json(false);
+  }
+});
+
+router.post("/offer/delete", async (req, res) => {
+  try {
+    const { date, offerId } = req.body;
+
+    const offer = await db.query(
+      "UPDATE offers SET end_date = $1 WHERE id = $2 RETURNING *;",
+      [date, offerId]
+    );
+
+    if (offer.rows.length === 0) return res.json(false);
+
+    res.json(true);
   } catch (e) {
     console.log(e.message);
     res.json(false);
@@ -499,15 +668,34 @@ router.get("/cartItems/:userId", async (req, res) => {
             const shopId = c.sid;
 
             const product = await db.query(
-              "SELECT * FROM products FULL JOIN inventory ON products.id = inventory.pid  WHERE inventory.id = $1 AND products.shop_id = $2;",
+              "SELECT * FROM products FULL JOIN inventory ON products.id = inventory.pid WHERE inventory.id = $1 AND products.shop_id = $2;",
               [iid, shopId]
             );
-            cartItems.push({
-              ...product.rows[0],
-              quantity: c.quantity,
-              cartId: c.id,
-              note: c.note,
-            });
+
+            const date = new Date();
+
+            const offer = await db.query(
+              "SELECT * FROM offers WHERE pid = $1 AND start_date < $2 AND end_date > $2",
+              [c.pid, date]
+            );
+
+            offer.rows.length === 1
+              ? cartItems.push({
+                  ...product.rows[0],
+                  discount_value: offer.rows[0].discount_value,
+                  valid_until: offer.rows[0].end_date,
+                  quantity: c.quantity,
+                  cartId: c.id,
+                  note: c.note,
+                })
+              : cartItems.push({
+                  ...product.rows[0],
+                  discount_value: null,
+                  valid_until: null,
+                  quantity: c.quantity,
+                  cartId: c.id,
+                  note: c.note,
+                });
           } catch (e) {
             console.log(e.message);
           }
@@ -646,13 +834,26 @@ router.post("/placeOrder", async (req, res) => {
           const inv = inventory.rows.filter((i) => item.iid === i.id);
           const newQuantity = inv[0].quantity - item.quantity;
 
+          const date = new Date();
+          const offer = await client.query(
+            "SELECT * FROM offers WHERE pid = $1 AND start_date < $2 AND end_date > $2",
+            [item.pid, date]
+          );
+
           if (newQuantity < 0) {
             throw Error(item.id);
           } else {
-            await client.query(
-              "INSERT INTO orderitems (oid, iid, quantity) VALUES ($1, $2, $3) RETURNING *;",
-              [newOrder.rows[0].id, item.iid, item.quantity]
-            );
+            if (offer.rows.length === 1) {
+              await client.query(
+                "INSERT INTO orderitems (oid, iid, quantity, offer_id) VALUES ($1, $2, $3, $4) RETURNING *;",
+                [newOrder.rows[0].id, item.iid, item.quantity, offer.rows[0].id]
+              );
+            } else {
+              await client.query(
+                "INSERT INTO orderitems (oid, iid, quantity, offer_id) VALUES ($1, $2, $3, $4) RETURNING *;",
+                [newOrder.rows[0].id, item.iid, item.quantity, null]
+              );
+            }
 
             await client.query(
               "UPDATE inventory SET quantity = $1 WHERE id = $2;",
@@ -813,7 +1014,7 @@ router.get("/orderItems/:orderId", async (req, res) => {
     const { orderId } = req.params;
 
     const items = await db.query(
-      "SELECT orderItems.oid AS orderId, orderItems.quantity as quantity, inventory.pid AS pid, inventory.id AS iid, inventory.size AS size, inventory.price AS price, products.name FROM orderItems INNER JOIN inventory ON orderItems.iid = inventory.id AND orderItems.oid = $1 INNER JOIN products ON inventory.pid = products.id",
+      "SELECT orderItems.oid AS orderId, orderItems.quantity as quantity, inventory.pid AS pid, inventory.id AS iid, inventory.size AS size, inventory.price AS price, products.name, offers.discount_value AS discount_value FROM orderItems INNER JOIN inventory ON orderItems.iid = inventory.id AND orderItems.oid = $1 INNER JOIN products ON inventory.pid = products.id LEFT JOIN offers ON orderItems.offer_id = offers.id",
       [orderId]
     );
 
@@ -887,6 +1088,22 @@ router.put("/cancelOrder", async (req, res) => {
   } catch (e) {
     console.log(e.message);
     res.json(false);
+  }
+});
+
+router.get("/reviews/:shopId", async (req, res) => {
+  try {
+    const { shopId } = req.params;
+
+    const reviews = await db.query(
+      "SELECT * FROM reviews WHERE shop_id = $1;",
+      [shopId]
+    );
+
+    res.json(reviews.rows);
+  } catch (e) {
+    console.log(e.message);
+    res.json([]);
   }
 });
 

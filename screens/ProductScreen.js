@@ -16,20 +16,26 @@ import { useHeaderHeight } from "@react-navigation/elements";
 import { MinusIcon, PlusIcon } from "react-native-heroicons/solid";
 import useCart from "../hooks/useCart";
 import Toast from "react-native-toast-message";
+import useShops from "../hooks/useShops";
+import useAuth from "../hooks/useAuth";
 
 const ProductScreen = () => {
   const route = useRoute();
   const navigation = useNavigation();
   const tw = useTailwind();
   const { addToCart } = useCart();
-  const { product, fixedPrice } = route.params;
+  const { product, fixedPrice, offer } = route.params;
   const height = useHeaderHeight();
+  const { getShop } = useShops();
+  const { user } = useAuth();
 
+  const [initialLoading, setInitialLoading] = useState(true);
   const [loading, setLoading] = useState(false);
   const [addToCartLoading, setAddToCartLoading] = useState(false);
   const [size, setSize] = useState();
   const [note, setNote] = useState("");
   const [quantity, setQuantity] = useState(1);
+  const [shop, setShop] = useState({});
 
   useEffect(() => {
     for (let i = 0; i < product.sizes.length; i++) {
@@ -39,6 +45,11 @@ const ProductScreen = () => {
         break;
       }
     }
+
+    getShop(product.shop_id).then((res) => {
+      setShop(res);
+      setInitialLoading(false);
+    });
   }, []);
 
   useLayoutEffect(() => {
@@ -76,133 +87,226 @@ const ProductScreen = () => {
             <Text className="text-xl font-semibold">{product.name}</Text>
             <Text className="mt-2 text-gray-600">{product.description}</Text>
 
-            <View className="flex-row justify-between">
+            <View className="flex-row justify-between items-end">
               {size ? (
-                <Text className="text-lg font-semibold mt-2">
-                  {(Math.round(size.price * quantity * 1000) / 1000).toFixed(3)}{" "}
-                  BD
-                </Text>
+                <>
+                  {offer ? (
+                    <View>
+                      <Text className="text-lg font-semibold mt-2 line-through">
+                        {(
+                          Math.round(size.price * quantity * 1000) / 1000
+                        ).toFixed(3)}{" "}
+                        BD
+                      </Text>
+
+                      <Text className="text-lg font-semibold mt-2 text-red-500 font-medium">
+                        {(
+                          Math.round(
+                            size.price *
+                              ((100 - offer.discount_value) / 100) *
+                              quantity *
+                              1000
+                          ) / 1000
+                        ).toFixed(3)}{" "}
+                        BD
+                      </Text>
+                    </View>
+                  ) : (
+                    <Text className="text-lg font-semibold mt-2">
+                      {(
+                        Math.round(size.price * quantity * 1000) / 1000
+                      ).toFixed(3)}{" "}
+                      BD
+                    </Text>
+                  )}
+                </>
               ) : (
                 <Text className="text-lg font-semibold mt-2 text-red-500">
                   Out of stock
                 </Text>
               )}
 
-              <View className="flex-row items-center border border-gray-300 rounded rounded-xl p-1">
-                <TouchableOpacity
-                  onPress={() => setQuantity(quantity - 1)}
-                  className="mx-2"
-                  disabled={!size || quantity === 1}
-                >
-                  <MinusIcon
-                    size={20}
-                    style={tw(
-                      `${
-                        !size || quantity === 1
-                          ? "text-gray-500"
-                          : "text-blue-500"
-                      }`
-                    )}
-                  />
-                </TouchableOpacity>
+              {!initialLoading ? (
+                <></>
+              ) : (
+                <>
+                  {user.id !== shop.owner_id && (
+                    <View className="flex-row items-center border border-gray-300 rounded rounded-xl p-1">
+                      <TouchableOpacity
+                        onPress={() => setQuantity(quantity - 1)}
+                        className="mx-2"
+                        disabled={!size || quantity === 1}
+                      >
+                        <MinusIcon
+                          size={20}
+                          style={tw(
+                            `${
+                              !size || quantity === 1
+                                ? "text-gray-500"
+                                : "text-blue-500"
+                            }`
+                          )}
+                        />
+                      </TouchableOpacity>
 
-                <Text className="mx-2 text-lg">{quantity}</Text>
+                      <Text className="mx-2 text-lg">{quantity}</Text>
 
-                <TouchableOpacity
-                  onPress={() => setQuantity(quantity + 1)}
-                  className="mx-2"
-                  disabled={!size}
-                >
-                  <PlusIcon
-                    size={20}
-                    style={tw(`${!size ? "text-gray-500" : "text-blue-500"}`)}
-                  />
-                </TouchableOpacity>
-              </View>
+                      <TouchableOpacity
+                        onPress={() => setQuantity(quantity + 1)}
+                        className="mx-2"
+                        disabled={!size}
+                      >
+                        <PlusIcon
+                          size={20}
+                          style={tw(
+                            `${!size ? "text-gray-500" : "text-blue-500"}`
+                          )}
+                        />
+                      </TouchableOpacity>
+                    </View>
+                  )}
+                </>
+              )}
             </View>
           </View>
 
-          <View className="flex-1 px-3">
-            {product.sizes.length > 1 && (
-              <View className="mb-6">
-                <Text className="text-lg font-semibold mb-2">Select Size</Text>
-                <RadioButton.Group
-                  onValueChange={(newValue) => setSize(newValue)}
-                  value={size}
-                >
-                  {product.sizes.map((s, i) => (
-                    <TouchableOpacity
-                      onPress={() => setSize(s)}
-                      activeOpacity={1}
-                      className="flex-row items-center border-b border-gray-200 pl-2"
-                      key={i}
-                      disabled={s.quantity === 0}
-                    >
-                      <Text className="flex-1 text-lg">{s.size}</Text>
+          {initialLoading ? (
+            <></>
+          ) : (
+            <>
+              {user.id === shop.owner_id ? (
+                <View className={"px-3"}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      navigation.navigate("EditProduct", {
+                        product,
+                      });
+                    }}
+                    className={`mt-3 mb-3 bg-blue-500 rounded rounded-lg p-3 justify-center items-center`}
+                  >
+                    <Text className="text-lg font-semibold text-white">
+                      Edit Product
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <View className="flex-1 px-3">
+                  {product.sizes.length > 1 && (
+                    <View className="mb-6">
+                      <Text className="text-lg font-semibold mb-2">
+                        Select Size
+                      </Text>
+                      <RadioButton.Group
+                        onValueChange={(newValue) => setSize(newValue)}
+                        value={size}
+                      >
+                        {product.sizes.map((s, i) => (
+                          <TouchableOpacity
+                            onPress={() => setSize(s)}
+                            activeOpacity={1}
+                            className="flex-row items-center border-b border-gray-200 pl-2"
+                            key={i}
+                            disabled={s.quantity === 0}
+                          >
+                            <Text className="flex-1 text-lg">{s.size}</Text>
 
-                      {s.quantity === 0 && (
-                        <Text className="text-red-500">Out of stock</Text>
-                      )}
+                            {s.quantity === 0 && (
+                              <Text className="text-red-500">Out of stock</Text>
+                            )}
 
-                      {!fixedPrice && (
-                        <Text className="mx-3">
-                          {(Math.round(s.price * 1000) / 1000).toFixed(3)} BD
+                            {!fixedPrice && (
+                              <>
+                                {offer ? (
+                                  <>
+                                    <Text className="mx-3 line-through">
+                                      {(
+                                        Math.round(s.price * 1000) / 1000
+                                      ).toFixed(3)}{" "}
+                                      BD
+                                    </Text>
+
+                                    <Text className="mx-3 text-red-500">
+                                      {(
+                                        Math.round(
+                                          s.price *
+                                            ((100 - offer.discount_value) /
+                                              100) *
+                                            1000
+                                        ) / 1000
+                                      ).toFixed(3)}{" "}
+                                      BD
+                                    </Text>
+                                  </>
+                                ) : (
+                                  <Text className="mx-3">
+                                    {(
+                                      Math.round(s.price * 1000) / 1000
+                                    ).toFixed(3)}{" "}
+                                    BD
+                                  </Text>
+                                )}
+                              </>
+                            )}
+                            <RadioButton.Android
+                              value={s}
+                              color={s.quantity === 0 ? "#8b8b8b" : "#0099F9"}
+                              disabled={s.quantity === 0}
+                            />
+                          </TouchableOpacity>
+                        ))}
+                      </RadioButton.Group>
+                    </View>
+                  )}
+
+                  <View className="">
+                    <Text className="text-lg mb-2">Notes (optional)</Text>
+                    <TextInput
+                      mode="outlined"
+                      label="Note"
+                      value={note}
+                      onChangeText={(text) => setNote(text)}
+                      underlineColor="#0099F9"
+                      activeUnderlineColor="#0099F9"
+                      outlineColor="#0099F9"
+                      activeOutlineColor="#0099F9"
+                      multiline={true}
+                      className="bg-white max-h-40"
+                    />
+
+                    {addToCartLoading ? (
+                      <TouchableOpacity className="my-3 bg-blue-500 rounded rounded-lg p-3 justify-center items-center">
+                        <ActivityIndicator
+                          animating={addToCartLoading}
+                          color="#fff"
+                        />
+                      </TouchableOpacity>
+                    ) : (
+                      <TouchableOpacity
+                        onPress={() => {
+                          setAddToCartLoading(true);
+                          addToCart(product, size, quantity, note).then(() => {
+                            setAddToCartLoading(false);
+                            Toast.show({
+                              text1: "Successfully added item to cart!",
+                            });
+                            navigation.goBack();
+                          });
+                        }}
+                        disabled={!size}
+                        className={`mt-5 mb-3 bg-blue-500 rounded rounded-lg p-3 justify-center items-center ${
+                          !size && "bg-gray-400"
+                        }`}
+                      >
+                        <Text className="text-lg font-semibold text-white">
+                          Add to cart
                         </Text>
-                      )}
-                      <RadioButton.Android
-                        value={s}
-                        color={s.quantity === 0 ? "#8b8b8b" : "#0099F9"}
-                        disabled={s.quantity === 0}
-                      />
-                    </TouchableOpacity>
-                  ))}
-                </RadioButton.Group>
-              </View>
-            )}
-
-            <View className="">
-              <Text className="text-lg mb-2">Notes (optional)</Text>
-              <TextInput
-                mode="outlined"
-                label="Note"
-                value={note}
-                onChangeText={(text) => setNote(text)}
-                underlineColor="#0099F9"
-                activeUnderlineColor="#0099F9"
-                outlineColor="#0099F9"
-                activeOutlineColor="#0099F9"
-                multiline={true}
-                className="bg-white max-h-40"
-              />
-            </View>
-
-            {addToCartLoading ? (
-              <TouchableOpacity className="my-3 bg-blue-500 rounded rounded-lg p-3 justify-center items-center">
-                <ActivityIndicator animating={addToCartLoading} color="#fff" />
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity
-                onPress={() => {
-                  setAddToCartLoading(true);
-                  addToCart(product, size, quantity, note).then(() => {
-                    setAddToCartLoading(false);
-                    Toast.show({
-                      text1: "Successfully added item to cart!",
-                    });
-                    navigation.goBack();
-                  });
-                }}
-                disabled={!size}
-                className={`mt-5 mb-3 bg-blue-500 rounded rounded-lg p-3 justify-center items-center ${
-                  !size && "bg-gray-400"
-                }`}
-              >
-                <Text className="text-lg font-semibold text-white">
-                  Add to cart
-                </Text>
-              </TouchableOpacity>
-            )}
-          </View>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                </View>
+              )}
+            </>
+          )}
         </ScrollView>
       </KeyboardAvoidingView>
     </View>

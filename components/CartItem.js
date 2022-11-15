@@ -5,19 +5,26 @@ import { MinusIcon, PlusIcon } from "react-native-heroicons/solid";
 import { useTailwind } from "tailwindcss-react-native";
 import useCart from "../hooks/useCart";
 import findIndex from "lodash.findindex";
+import useOffers from "../hooks/useOffers";
 
 const CartItem = ({ item }) => {
   const tw = useTailwind();
   const { getShop } = useShops();
+  const { getProductOffer } = useOffers();
   const { updateQuantity, error, setError, getCartItems } = useCart();
 
   const [shop, setShop] = useState({});
+  const [offer, setOffer] = useState(null);
 
   useEffect(() => {
     const fetchShop = async () => {
       setShop(await getShop(item.shop_id));
     };
     fetchShop();
+
+    // getProductOffer(item.pid).then((o) => {
+    //   setOffer(o);
+    // });
   }, []);
 
   useEffect(() => {
@@ -48,10 +55,26 @@ const CartItem = ({ item }) => {
         )}
 
         <View className="flex-row items-end justify-between mt-2">
-          <Text className="text-lg font-medium">
-            {(Math.round(item.price * item.quantity * 1000) / 1000).toFixed(3)}{" "}
-            BD
-          </Text>
+          {item.discount_value && new Date(item.valid_until) > new Date() ? (
+            <Text className="text-lg font-medium">
+              {(
+                Math.round(
+                  item.price *
+                    ((100 - item.discount_value) / 100) *
+                    item.quantity *
+                    1000
+                ) / 1000
+              ).toFixed(3)}{" "}
+              BD
+            </Text>
+          ) : (
+            <Text className="text-lg font-medium">
+              {(Math.round(item.price * item.quantity * 1000) / 1000).toFixed(
+                3
+              )}{" "}
+              BD
+            </Text>
+          )}
 
           <View className="flex-row items-center border border-gray-300 rounded rounded-xl p-1">
             <TouchableOpacity

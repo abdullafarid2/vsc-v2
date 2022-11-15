@@ -10,6 +10,7 @@ import { CartProvider } from "./hooks/useCart";
 import { useState } from "react";
 import { NotificationProvider } from "./hooks/useNotifications";
 import { OrderProvider } from "./hooks/useOrders";
+import { OfferProvider } from "./hooks/useOffers";
 LogBox.ignoreLogs(["AsyncStorage", "Cannot update a component"]);
 
 export default function App() {
@@ -22,8 +23,10 @@ export default function App() {
               <NotificationProvider>
                 <OrderProvider>
                   <CartProvider>
-                    <StackNavigator />
-                    <Toast />
+                    <OfferProvider>
+                      <StackNavigator />
+                      <Toast />
+                    </OfferProvider>
                   </CartProvider>
                 </OrderProvider>
               </NotificationProvider>

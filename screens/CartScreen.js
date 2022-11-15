@@ -33,7 +33,7 @@ const CartScreen = () => {
 
   const [address, setAddress] = useState({});
   const [modalVisible, setModalVisible] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [addLoading, setAddLoading] = useState(false);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -41,9 +41,11 @@ const CartScreen = () => {
     });
   }, []);
 
-  useEffect(() => {
-    getCartItems();
-  }, [cart]);
+  useFocusEffect(
+    useCallback(() => {
+      getCartItems();
+    }, [])
+  );
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
@@ -110,16 +112,16 @@ const CartScreen = () => {
                       {(Math.round(total * 1000) / 1000).toFixed(3)} BD
                     </Text>
                   </View>
-                  {loading ? (
+                  {addLoading ? (
                     <TouchableOpacity className="my-3 bg-blue-500 rounded rounded-lg p-3 justify-center items-center">
-                      <ActivityIndicator animating={loading} color="#fff" />
+                      <ActivityIndicator animating={addLoading} color="#fff" />
                     </TouchableOpacity>
                   ) : (
                     <TouchableOpacity
                       onPress={() => {
-                        setLoading(true);
+                        setAddLoading(true);
                         placeOrder(address).then(() => {
-                          setLoading(false);
+                          setAddLoading(false);
                         });
                       }}
                       disabled={cartItems.length === 0 || isEqual(address, {})}

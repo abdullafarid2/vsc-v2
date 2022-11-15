@@ -78,6 +78,7 @@ const StackNavigator = () => {
             tabBarActiveTintColor: "#0584F9",
             tabBarInactiveTintColor: "gray",
             headerShown: false,
+            tabBarHideOnKeyboard: true,
           })}
         >
           <Tab.Screen

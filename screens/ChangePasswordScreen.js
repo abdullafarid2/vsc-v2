@@ -38,8 +38,6 @@ const ChangePasswordScreen = () => {
 
       const data = await res.json();
 
-      console.log(data);
-
       if (data === true) {
         isAuthenticated();
         Toast.show({

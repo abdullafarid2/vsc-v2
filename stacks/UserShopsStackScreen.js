@@ -11,6 +11,10 @@ import CreateProductScreen from "../screens/CreateProductScreen";
 import ProductScreen from "../screens/ProductScreen";
 import OrdersScreen from "../screens/OrdersScreen";
 import OrderDetailsScreen from "../screens/OrderDetailsScreen";
+import EditProduct from "../screens/EditProductScreen";
+import AddOfferScreen from "../screens/AddOfferScreen";
+import EditShop from "../screens/EditShopScreen";
+import ReviewsScreen from "../screens/ReviewsScreen";
 
 const UserShopsStack = createNativeStackNavigator();
 
@@ -43,6 +47,10 @@ const UserShopsStackScreen = () => {
         name={"OrderDetails"}
         component={OrderDetailsScreen}
       />
+      <UserShopsStack.Screen name={"EditProduct"} component={EditProduct} />
+      <UserShopsStack.Screen name={"AddOffer"} component={AddOfferScreen} />
+      <UserShopsStack.Screen name={"EditShop"} component={EditShop} />
+      <UserShopsStack.Screen name={"Reviews"} component={ReviewsScreen} />
     </UserShopsStack.Navigator>
   );
 };

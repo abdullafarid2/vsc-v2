@@ -78,7 +78,13 @@ const ShopTitle = ({ shopDetails, products }) => {
           </View>
 
           {shopDetails.owner_id === user.id ? (
-            <TouchableOpacity>
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate("EditShop", {
+                  shopDetails,
+                })
+              }
+            >
               <Text className="text-blue-500 font-bold mt-1">Edit Shop</Text>
             </TouchableOpacity>
           ) : (
@@ -108,7 +114,14 @@ const ShopTitle = ({ shopDetails, products }) => {
             </TouchableOpacity>
           )}
 
-          <TouchableOpacity className="flex-1 mt-5">
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate("Reviews", {
+                shopDetails,
+              })
+            }
+            className="flex-1 mt-5"
+          >
             <Text className="text-blue-500 font-bold mt-1 self-end">
               Reviews
             </Text>
