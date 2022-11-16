@@ -7,6 +7,7 @@ import useAuth from "../hooks/useAuth";
 import { db } from "../firebase";
 import { useNavigation } from "@react-navigation/native";
 import { ActivityIndicator, MD2Colors } from "react-native-paper";
+import StarRating from "react-native-star-rating-widget";
 
 const ShopTitle = ({ shopDetails, products }) => {
   const tw = useTailwind();
@@ -55,23 +56,20 @@ const ShopTitle = ({ shopDetails, products }) => {
           </Text>
 
           <View className="flex-row mt-1 items-center">
-            {shopDetails.rating &&
-              shopDetails.rating > 0 &&
-              Array(Math.round(shopDetails.rating))
-                .fill()
-                .map((_, i) => (
-                  <StarIcon
-                    key={i}
-                    color={"#FFC700"}
-                    style={tw(`-ml-1`)}
-                    size={30}
-                  />
-                ))}
-
-            {shopDetails.rating ? (
-              <Text className="text-[#838383] font-semibold">
-                ({Math.round(shopDetails.rating)})
-              </Text>
+            {shopDetails.avg ? (
+              <View className={"flex-row items-center"} pointerEvents={"none"}>
+                <StarRating
+                  rating={shopDetails.avg}
+                  onChange={() => {}}
+                  maxStars={Math.ceil(shopDetails.avg)}
+                  starSize={25}
+                  className={"self-center"}
+                  starStyle={{ marginHorizontal: 0 }}
+                />
+                <Text className={"text-gray-500"}>
+                  ({shopDetails.avg.toFixed(1)})
+                </Text>
+              </View>
             ) : (
               <Text className="text-[#838383]">No rating available</Text>
             )}

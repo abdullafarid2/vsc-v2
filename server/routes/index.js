@@ -96,8 +96,10 @@ router.get("/categories", async (req, res, next) => {
 router.get("/shops", async (req, res, next) => {
   try {
     const shops = await db.query(
-      "SELECT shops.*, categories.name as category_name FROM shops INNER JOIN categories ON shops.category = categories.id;"
+      "SELECT shops.*, categories.name as category_name, AVG(reviews.rating) FROM shops INNER JOIN categories ON shops.category = categories.id LEFT JOIN reviews ON shops.id = reviews.shop_id GROUP BY(shops.id, categories.name);"
     );
+
+    console.log(shops.rows);
 
     if (shops.rows.length === 0) return res.json(false);
     else res.json(shops.rows);
@@ -1096,7 +1098,7 @@ router.get("/reviews/:shopId", async (req, res) => {
     const { shopId } = req.params;
 
     const reviews = await db.query(
-      "SELECT * FROM reviews WHERE shop_id = $1;",
+      "SELECT reviews.*, users.first_name FROM reviews INNER JOIN users ON reviews.user_id = users.id AND shop_id = $1;",
       [shopId]
     );
 
@@ -1104,6 +1106,28 @@ router.get("/reviews/:shopId", async (req, res) => {
   } catch (e) {
     console.log(e.message);
     res.json([]);
+  }
+});
+
+router.post("/review/new", async (req, res) => {
+  try {
+    const { shopId, userId, review, rating, date } = req.body;
+
+    const newReview = await db.query(
+      "INSERT INTO reviews (shop_id, user_id, review, rating, date) VALUES ($1, $2, $3, $4, $5) RETURNING *;",
+      [shopId, userId, review, rating, date]
+    );
+
+    if (newReview.rows.length === 0) return res.json(false);
+
+    const allReviews = await db.query(
+      "SELECT reviews.*, users.first_name FROM reviews INNER JOIN users ON reviews.user_id = users.id AND shop_id = $1;",
+      [shopId]
+    );
+    res.json(allReviews.rows);
+  } catch (e) {
+    console.log(e.message);
+    res.json(false);
   }
 });
 
