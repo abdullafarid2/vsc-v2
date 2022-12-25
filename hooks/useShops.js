@@ -17,7 +17,11 @@ export const ShopProvider = ({ children }) => {
   const [categories, setCategories] = useState([]);
 
   const getUserShops = () => {
-    setUserShops(shops.filter((shop) => shop.owner_id === user.id));
+    setUserShops(
+      shops.filter(
+        (shop) => shop.owner_id === user.id && shop.status !== "deleted"
+      )
+    );
   };
 
   const getShops = async () => {
@@ -101,13 +105,6 @@ export const ShopProvider = ({ children }) => {
   useEffect(() => {
     getCategories();
   }, []);
-
-  // useEffect(() => {
-  //   if(user) {
-  //     getShops();
-  //     getUserShops();
-  //   }
-  // }, [shops]);
 
   const memoedValue = useMemo(
     () => ({

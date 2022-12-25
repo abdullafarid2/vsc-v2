@@ -49,7 +49,7 @@ const UserShopsScreen = () => {
                   <Text className={"font-bold text-black text-xl"}>
                     My shops{" "}
                   </Text>
-                  <Text>({userShops.length}/3)</Text>
+                  <Text>({userShops.length}/5)</Text>
                 </View>
                 <View>
                   <TouchableOpacity
@@ -75,13 +75,17 @@ const UserShopsScreen = () => {
           renderItem={({ item }) => <ShopRow shopDetails={item} />}
           keyExtractor={(item) => item.id}
           ListFooterComponent={
-            <TouchableOpacity
-              className={"justify-center items-center mb-4"}
-              onPress={() => navigation.navigate("CreateShop")}
-            >
-              <PlusCircleIcon size={30} style={tw("text-black")} />
-              <Text>Create New Shop</Text>
-            </TouchableOpacity>
+            <>
+              {userShops.length < 5 && (
+                <TouchableOpacity
+                  className={"justify-center items-center mb-4"}
+                  onPress={() => navigation.navigate("CreateShop")}
+                >
+                  <PlusCircleIcon size={30} style={tw("text-black")} />
+                  <Text>Create New Shop</Text>
+                </TouchableOpacity>
+              )}
+            </>
           }
         />
       </View>

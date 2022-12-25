@@ -30,6 +30,8 @@ const SearchScreen = () => {
       shops.filter(
         (shop) =>
           shop.name.toLowerCase().includes(search.toLowerCase()) &&
+          shop.status !== "pending" &&
+          shop.status !== "deleted" &&
           search !== ""
       )
     );

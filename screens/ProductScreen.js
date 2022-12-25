@@ -126,7 +126,7 @@ const ProductScreen = () => {
                 </Text>
               )}
 
-              {!initialLoading ? (
+              {initialLoading ? (
                 <></>
               ) : (
                 <>

@@ -5,6 +5,7 @@ import ShopRow from "../components/ShopRow";
 import { BeakerIcon, FunnelIcon } from "react-native-heroicons/solid";
 import useShops from "../hooks/useShops";
 import { useTailwind } from "tailwindcss-react-native";
+import Icon from "react-native-vector-icons/MaterialIcons";
 
 const CategoryScreen = () => {
   const route = useRoute();
@@ -17,7 +18,12 @@ const CategoryScreen = () => {
   const [filteredShops, setFilteredShops] = useState([]);
 
   const getShopsWithCategory = () => {
-    const filter = shops.filter((shop) => shop.category === category.id);
+    const filter = shops.filter(
+      (shop) =>
+        shop.category === category.id &&
+        shop.status !== "pending" &&
+        shop.status !== "deleted"
+    );
 
     setFilteredShops(filter);
   };
@@ -31,19 +37,18 @@ const CategoryScreen = () => {
       <FlatList
         ListHeaderComponent={
           <>
-            <View className="flex-row items-center justify-center">
-              <View className="h-40 w-40">
-                <Image
-                  source={{ uri: category.imageurl }}
-                  style={{ width: "90%", height: "90%" }}
-                />
+            <View className={`items-center justify-center`}>
+              <View
+                className={`bg-[#${category.color}] rounded-full p-8 rounded-full`}
+              >
+                <Icon name={category.icon} size={40} color={"#000000"} />
               </View>
+              <Text className={"text-lg font-medium mt-1"}>
+                {category.name}
+              </Text>
             </View>
 
             <View className="flex-row mb-3 -mt-2">
-              <Text className="self-center font-semibold text-lg">
-                Browse your favorite in "{category.name}"
-              </Text>
               <View className="flex-1 items-end mr-2">
                 <TouchableOpacity>
                   <FunnelIcon style={tw("text-black")} size={30} />
@@ -55,6 +60,9 @@ const CategoryScreen = () => {
         data={filteredShops}
         renderItem={({ item }) => <ShopRow shopDetails={item} />}
         keyExtractor={(item) => item.id}
+        ListFooterComponent={
+          <>{filteredShops.length === 0 && <Text>No shops found.</Text>}</>
+        }
       />
     </View>
   );

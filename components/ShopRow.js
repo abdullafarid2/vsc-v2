@@ -1,15 +1,16 @@
 import { View, Text, Image, TouchableOpacity } from "react-native";
 import React, { useEffect } from "react";
 
-import { StarIcon } from "react-native-heroicons/solid";
 import { useNavigation } from "@react-navigation/native";
 import { useTailwind } from "tailwindcss-react-native";
-import { MD2Colors } from "react-native-paper";
 import StarRating from "react-native-star-rating-widget";
+import useAuth from "../hooks/useAuth";
 
 const Shop = ({ shopDetails }) => {
   const tw = useTailwind();
   const navigation = useNavigation();
+
+  const { user } = useAuth();
 
   return (
     <TouchableOpacity
@@ -53,6 +54,12 @@ const Shop = ({ shopDetails }) => {
             <Text className="text-[#838383]">No rating available</Text>
           )}
         </View>
+
+        {user.id === shopDetails.owner_id && (
+          <Text className={"mt-1 text-gray-600"}>
+            Status: {shopDetails.status}
+          </Text>
+        )}
       </View>
     </TouchableOpacity>
   );

@@ -36,7 +36,9 @@ const ShopList = ({ shops, setShops }) => {
       const data = await res.json();
 
       if (data) {
-        setShops(data);
+        setShops(
+          data.filter((s) => s.status !== "pending" && s.status !== "deleted")
+        );
       }
     } catch (err) {
       console.error(err);

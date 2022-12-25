@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import useAuth from "../hooks/useAuth";
 import { useNavigation } from "@react-navigation/native";
 import { useTailwind } from "tailwindcss-react-native";
+import Icon from "react-native-vector-icons/MaterialIcons";
 
 const CategoriesSlider = () => {
   const [categories, setCategories] = useState([]);
@@ -36,31 +37,35 @@ const CategoriesSlider = () => {
     <View className="flex pl-3 mt-5">
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         {categories.map((category) => (
-          <View key={category.id} className="justify-center items-center mr-4">
+          <View
+            key={category.id}
+            className="justify-center items-center mr-4 flex-1 flex-wrap"
+          >
             <TouchableOpacity
-              className="h-32 w-32 mb-2 rounded-lg -mb-2"
+              className={`p-8 rounded-full -mb-2 justify-center items-center`}
+              style={{ backgroundColor: "#" + category.color }}
               onPress={() =>
                 navigation.navigate("Category", {
                   category,
                 })
               }
             >
-              <Image
-                source={{
-                  uri: category.imageurl,
-                }}
-                style={{ width: "100%", height: "100%", alignSelf: "center" }}
-              />
+              {category.name !== "Other" && (
+                <Icon name={category.icon} size={40} color={"#000000"} />
+              )}
+
+              {category.name === "Other" && (
+                <Text className={"text-lg font-medium"}>Other</Text>
+              )}
             </TouchableOpacity>
-            <Text className="font-semibold text-lg">{category.name}</Text>
+
+            {category.name !== "Other" && (
+              <Text className="font-semibold text-lg mt-2">
+                {category.name}
+              </Text>
+            )}
           </View>
         ))}
-
-        <View className="justify-center items-center mr-3">
-          <TouchableOpacity className="justify-center items-center">
-            <Text className="font-semibold text-lg">View All</Text>
-          </TouchableOpacity>
-        </View>
       </ScrollView>
     </View>
   );

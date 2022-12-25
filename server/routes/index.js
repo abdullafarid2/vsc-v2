@@ -2,9 +2,37 @@ const router = require("express").Router();
 const passport = require("passport");
 const db = require("../db");
 const bcrypt = require("bcrypt");
-const { isAuth, isAdmin } = require("./authMiddleware");
+const { isAuth } = require("./authMiddleware");
 const { pool } = require("../db");
 const { promise } = require("bcrypt/promises");
+
+const isAdmin = async (req, res, next) => {
+  const { username: email, password } = req.body;
+
+  const user = await db.query(
+    "SELECT * FROM users WHERE email = $1 AND admin = $2",
+    [email, true]
+  );
+
+  if (user.rows.length === 0) {
+    return res
+      .status(401)
+      .json({ msg: "Invalid credentials. Please try again." });
+  } else {
+    const verifyPassword = await bcrypt.compare(
+      password,
+      user.rows[0].password
+    );
+
+    if (!verifyPassword) {
+      return res
+        .status(401)
+        .json({ msg: "Invalid credentials. Please try again." });
+    } else {
+      return res.status(200).json(user.rows[0]);
+    }
+  }
+};
 
 router.post(
   "/login",
@@ -13,6 +41,8 @@ router.post(
     successRedirect: "/login-success",
   })
 );
+
+router.post("/admin-login", isAdmin);
 
 router.post("/register", async (req, res, next) => {
   try {
@@ -93,13 +123,51 @@ router.get("/categories", async (req, res, next) => {
   }
 });
 
+router.put("/deleteShop", async (req, res) => {
+  try {
+    const { shopId } = req.body;
+
+    const delete_shop = await db.query(
+      "UPDATE shops SET status = $1 WHERE id = $2 RETURNING *;",
+      ["deleted", shopId * 1]
+    );
+
+    if (delete_shop.rows.length === 0) {
+      return res.status(401).json({ msg: "An error has occurred." });
+    }
+
+    return res.status(200).json(true);
+  } catch (e) {
+    console.log(e.message);
+    res.status(401).json({ msg: "An error has occurred." });
+  }
+});
+
+router.put("/acceptShop", async (req, res) => {
+  try {
+    const { shopId } = req.body;
+
+    const accepted_shop = await db.query(
+      "UPDATE shops SET status = $1 WHERE id = $2 RETURNING *;",
+      ["active", shopId * 1]
+    );
+
+    if (accepted_shop.rows.length === 0) {
+      return res.status(401).json({ msg: "An error has occurred." });
+    }
+
+    return res.status(200).json(true);
+  } catch (e) {
+    console.log(e.message);
+    res.status(401).json({ msg: "An error has occurred." });
+  }
+});
+
 router.get("/shops", async (req, res, next) => {
   try {
     const shops = await db.query(
       "SELECT shops.*, categories.name as category_name, AVG(reviews.rating) FROM shops INNER JOIN categories ON shops.category = categories.id LEFT JOIN reviews ON shops.id = reviews.shop_id GROUP BY(shops.id, categories.name);"
     );
-
-    console.log(shops.rows);
 
     if (shops.rows.length === 0) return res.json(false);
     else res.json(shops.rows);
@@ -113,9 +181,10 @@ router.get("/shops/:categoryId", async (req, res, next) => {
   const categoryId = req.params.categoryId;
 
   try {
-    const query = await db.query("SELECT * FROM shops WHERE category = $1", [
-      categoryId,
-    ]);
+    const query = await db.query(
+      "SELECT * FROM shops WHERE category = $1 AND status NOT IN('pending', 'deleted')",
+      [categoryId]
+    );
 
     if (query.rows.length === 0) return res.json([]);
     else res.json(query.rows);
@@ -129,7 +198,7 @@ router.get("/shop/:shopId", async (req, res) => {
   try {
     const { shopId } = req.params;
     const query = await db.query("SELECT * FROM shops WHERE id = $1;", [
-      shopId,
+      shopId * 1,
     ]);
 
     if (query.rows.length === 0) return res.json(false);
@@ -338,7 +407,6 @@ router.post("/addAddress", async (req, res, next) => {
 
 router.put("/deleteAddress", async (req, res) => {
   try {
-    console.log(req.user);
     const { id } = req.body;
 
     const addresses = await db.query(
@@ -551,8 +619,6 @@ router.put("/product", async (req, res) => {
 router.put("/product/delete", async (req, res) => {
   try {
     const { productId } = req.body;
-
-    console.log(productId);
 
     const product = await db.query(
       "UPDATE products SET deleted = true WHERE id = $1 RETURNING *;",
@@ -1135,10 +1201,6 @@ router.get("/protected-route", isAuth, (req, res, next) => {
   res.send("You made it to the route");
 });
 
-router.get("/admin-route", isAdmin, (req, res, next) => {
-  res.send("You made it to the admin route");
-});
-
 router.get("/logout", (req, res, next) => {
   req.logout((err) => {
     if (err) {
@@ -1173,7 +1235,7 @@ router.get("/login-success", (req, res, next) => {
 });
 
 router.get("/login-failure", (req, res, next) => {
-  return res.json(false);
+  return res.json(null);
 });
 
 module.exports = router;
