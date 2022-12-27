@@ -432,31 +432,55 @@ router.put("/deleteAddress", async (req, res) => {
   }
 });
 
+const checkError = (name, category, sizes, photo) => {
+  if (name === "") return "Invalid product name";
+  else if (!category) return "Invalid category";
+  else if (!photo) return "Invalid photo";
+
+  let err = false;
+  let index = 0;
+  while (err === false && index < sizes.length) {
+    if (sizes[index].price <= 0) err = "Invalid price";
+    else if (sizes[index].quantity < 0) err = "Invalid quantity";
+    index++;
+  }
+
+  if (err !== false) return err;
+  else return "No error";
+};
+
 router.post("/newProduct", async (req, res) => {
   try {
     const { name, description, category, sizes, photo, shopId } = req.body;
+    console.log(name, category, sizes, photo);
 
-    const q = await db.query(
-      "INSERT INTO products (shop_id, name, category, description, photo) VALUES ($1, $2, $3, $4, $5) RETURNING *;",
-      [shopId, name, category, description, photo]
-    );
+    const err = checkError(name, category, sizes, photo);
 
-    if (q.rows.length === 0) return res.status(500).json(false);
-
-    sizes.forEach(async (s) => {
-      const q2 = await db.query(
-        "INSERT INTO inventory (pid, price, quantity, size) VALUES ($1, $2, $3, $4)",
-        [q.rows[0].id, s.price, s.quantity, s.size]
+    if (err === "No error") {
+      const q = await db.query(
+        "INSERT INTO products (shop_id, name, category, description, photo) VALUES ($1, $2, $3, $4, $5) RETURNING *;",
+        [shopId, name, category, description, photo]
       );
-    });
 
-    const q3 = await db.query(
-      "SELECT * FROM products FULL JOIN inventory ON products.id = inventory.pid WHERE products.shop_id = $1;",
-      [shopId]
-    );
+      if (q.rows.length === 0) return res.status(500).json(false);
 
-    if (q3.rows.length === 0) return res.json(false);
-    else res.json(q3.rows);
+      sizes.forEach(async (s) => {
+        const q2 = await db.query(
+          "INSERT INTO inventory (pid, price, quantity, size) VALUES ($1, $2, $3, $4)",
+          [q.rows[0].id, s.price, s.quantity, s.size]
+        );
+      });
+
+      const q3 = await db.query(
+        "SELECT * FROM products FULL JOIN inventory ON products.id = inventory.pid WHERE products.shop_id = $1;",
+        [shopId]
+      );
+
+      if (q3.rows.length === 0) return res.json(false);
+      else res.json(q3.rows);
+    } else {
+      return res.json({ error: err });
+    }
   } catch (e) {
     console.log(e.message);
     res.json(false);
@@ -1152,6 +1176,19 @@ router.put("/cancelOrder", async (req, res) => {
     );
 
     if (updateQuery.rows.length === 0) return res.json(false);
+
+    const cancelledItems = await db.query(
+      "SELECT iid, quantity FROM orderitems WHERE oid = $1;",
+      [oid]
+    );
+
+    cancelledItems.rows.map(async (item) => {
+      const returnQuantity = await db.query(
+        "UPDATE inventory SET quantity = quantity + $1 WHERE id = $2;",
+        [item.quantity, item.iid]
+      );
+    });
+
     res.json(true);
   } catch (e) {
     console.log(e.message);

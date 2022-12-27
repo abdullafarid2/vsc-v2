@@ -39,21 +39,13 @@ const CategoryScreen = () => {
           <>
             <View className={`items-center justify-center`}>
               <View
-                className={`bg-[#${category.color}] rounded-full p-8 rounded-full`}
+                className={`bg-[#${category.color}] rounded-full p-3 rounded-full`}
               >
                 <Icon name={category.icon} size={40} color={"#000000"} />
               </View>
-              <Text className={"text-lg font-medium mt-1"}>
+              <Text className={"text-lg font-medium mt-1 mb-3"}>
                 {category.name}
               </Text>
-            </View>
-
-            <View className="flex-row mb-3 -mt-2">
-              <View className="flex-1 items-end mr-2">
-                <TouchableOpacity>
-                  <FunnelIcon style={tw("text-black")} size={30} />
-                </TouchableOpacity>
-              </View>
             </View>
           </>
         }

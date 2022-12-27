@@ -41,10 +41,6 @@ const ShopScreen = () => {
     }, [])
   );
 
-  // useEffect(() => {
-  //   getProducts();
-  // }, []);
-
   return (
     <SafeAreaView className="flex-1 bg-blue-500">
       <ShopHeader products={products} ownerId={shopDetails.owner_id} />

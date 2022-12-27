@@ -34,7 +34,7 @@ const CategoriesSlider = () => {
   const navigation = useNavigation();
 
   return (
-    <View className="flex pl-3 mt-5">
+    <View className="flex pl-1 mt-5">
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         {categories.map((category) => (
           <View

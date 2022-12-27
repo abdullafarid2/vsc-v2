@@ -120,7 +120,6 @@ const StackNavigator = () => {
             component={MessagesStackScreen}
             options={{
               tabBarLabel: "Messages",
-              tabBarBadge: "",
             }}
           />
         </Tab.Navigator>

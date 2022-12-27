@@ -254,6 +254,17 @@ const OrderDetails = () => {
                 <Text className={"text-gray-500 mb-1"}>
                   Mobile number: {customer?.phone_number}
                 </Text>
+                <TouchableOpacity
+                  onPress={() =>
+                    navigation.navigate("Location", {
+                      address: order.address,
+                    })
+                  }
+                >
+                  <Text className={"text-blue-500 font-medium"}>
+                    View Location
+                  </Text>
+                </TouchableOpacity>
               </View>
             </View>
 

@@ -86,7 +86,13 @@ const ShopTitle = ({ shopDetails, products }) => {
               <Text className="text-blue-500 font-bold mt-1">Edit Shop</Text>
             </TouchableOpacity>
           ) : (
-            <TouchableOpacity>
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate("ShopDetails", {
+                  ...shopDetails,
+                })
+              }
+            >
               <Text className="text-blue-500 font-bold mt-1">More Info</Text>
             </TouchableOpacity>
           )}

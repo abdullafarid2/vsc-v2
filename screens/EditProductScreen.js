@@ -23,7 +23,7 @@ import { launchImageLibraryAsync } from "expo-image-picker";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import Toast from "react-native-toast-message";
 
-const EditProduct = () => {
+const EditProductScreen = () => {
   const tw = useTailwind();
   const route = useRoute();
   const navigation = useNavigation();
@@ -294,4 +294,4 @@ const EditProduct = () => {
   );
 };
 
-export default EditProduct;
+export default EditProductScreen;

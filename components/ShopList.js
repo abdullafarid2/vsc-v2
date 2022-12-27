@@ -63,12 +63,6 @@ const ShopList = ({ shops, setShops }) => {
           {/* Shops List */}
           <View className="flex-row justify-between mt-8 mb-8 px-3">
             <Text className="text-2xl text-black font-bold">Browse Shops</Text>
-
-            <TouchableOpacity className="flex-row items-end mr-2">
-              <Text className="font-semibold text-blue-600 text-lg">
-                View all
-              </Text>
-            </TouchableOpacity>
           </View>
         </>
       }

@@ -16,6 +16,7 @@ export const AuthProvider = ({ children }) => {
   const [loadingInitial, setLoadingInitial] = useState(true);
   const [error, setError] = useState(null);
 
+  // const url = "http://172.20.10.2:3000";
   const url = "http://192.168.100.3:3000";
 
   const getUser = () => {

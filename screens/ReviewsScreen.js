@@ -84,7 +84,7 @@ const Reviews = () => {
           <ScrollView>
             {/*  Rating box */}
 
-            {!didUserReview && (
+            {user.id !== shop.owner_id && !didUserReview && (
               <>
                 <Rating shopId={shop.id} setReviews={setReviews} />
                 <Divider className={"mt-5 bg-gray-400"} />
@@ -123,15 +123,6 @@ const Reviews = () => {
             <Divider className={"mt-3 mb-5 bg-gray-400"} />
 
             {/*  Reviews */}
-            {/*<FlatList*/}
-            {/*    data={reviews}*/}
-            {/*    renderItem={({ item }) => <ReviewRow item={item} />}*/}
-            {/*    keyExtractor={(item) => item.id}*/}
-            {/*    className={"mt-5"}*/}
-            {/*    ItemSeparatorComponent={() => (*/}
-            {/*        <Divider className={"my-4 bg-gray-400"} />*/}
-            {/*    )}*/}
-            {/*/>*/}
 
             {reviews.map((rev) => (
               <View key={rev.id}>

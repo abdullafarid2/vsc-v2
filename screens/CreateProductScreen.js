@@ -33,6 +33,7 @@ import { launchImageLibraryAsync } from "expo-image-picker";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import MultipleSizesFixedPrice from "../components/MultipleSizesFixedPrice";
 import MultipleSizesDifferentPrice from "../components/MultipleSizesDifferentPrice";
+import { verifyText } from "../utils/formValidation";
 
 const CreateProduct = () => {
   const route = useRoute();
@@ -86,29 +87,31 @@ const CreateProduct = () => {
   const uploadImageAsync = async (uri) => {
     // Why are we using XMLHttpRequest? See:
     // https://github.com/expo/expo/issues/2402#issuecomment-443726662
-    const blob = await new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.onload = function () {
-        resolve(xhr.response);
-      };
-      xhr.onerror = function (e) {
-        console.log(e);
-        reject(new TypeError("Network request failed"));
-      };
-      xhr.responseType = "blob";
-      xhr.open("GET", uri, true);
-      xhr.send(null);
-    });
+    if (uri !== "") {
+      const blob = await new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.onload = function () {
+          resolve(xhr.response);
+        };
+        xhr.onerror = function (e) {
+          console.log(e);
+          reject(new TypeError("Network request failed"));
+        };
+        xhr.responseType = "blob";
+        xhr.open("GET", uri, true);
+        xhr.send(null);
+      });
 
-    const file = uri.substring(uri.lastIndexOf("/") + 1);
+      const file = uri.substring(uri.lastIndexOf("/") + 1);
 
-    const fileRef = ref(getStorage(), file);
-    const result = await uploadBytes(fileRef, blob);
+      const fileRef = ref(getStorage(), file);
+      const result = await uploadBytes(fileRef, blob);
 
-    // We're done with the blob, close and release it
-    blob.close();
+      // We're done with the blob, close and release it
+      blob.close();
 
-    return await getDownloadURL(fileRef);
+      return await getDownloadURL(fileRef);
+    }
   };
 
   const addCategory = async () => {
@@ -165,9 +168,23 @@ const CreateProduct = () => {
 
       const data = await res.json();
 
+      if (data.error) {
+        Toast.show({
+          text1: "Error",
+          text2: data.error,
+          type: "error",
+        });
+      } else {
+        Toast.show({
+          text1: "Success",
+          text2: "Product created successfully!",
+          type: "success",
+        });
+        const popAction = StackActions.pop(2);
+        navigation.dispatch(popAction);
+      }
+
       setLoading(false);
-      const popAction = StackActions.pop(2);
-      navigation.dispatch(popAction);
     } catch (e) {
       console.log(e.message);
     }
@@ -222,6 +239,7 @@ const CreateProduct = () => {
               <TouchableOpacity
                 onPress={() => addCategory()}
                 className="bg-blue-500 rounded roudned-lg p-2 px-4 ml-4"
+                disabled={newCategory === ""}
               >
                 <Text className="text-white font-semibold">Add</Text>
               </TouchableOpacity>

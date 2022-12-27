@@ -4,7 +4,10 @@ import { Button, Divider, Menu } from "react-native-paper";
 import { useTailwind } from "tailwindcss-react-native";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { ChevronDownIcon } from "react-native-heroicons/outline";
+import {
+  ChevronDownIcon,
+  ChevronLeftIcon,
+} from "react-native-heroicons/outline";
 import useOrders from "../hooks/useOrders";
 import OrderRow from "../components/OrderRow";
 
@@ -32,6 +35,16 @@ const Orders = () => {
   return (
     <SafeAreaView className={"flex-1 bg-white"} edges={["top"]}>
       <View className={"flex-1 bg-white px-3"}>
+        <View className={"flex-row mt-3"}>
+          <TouchableOpacity
+            className={
+              "bg-gray-300 justify-center items-center rounded-full p-2"
+            }
+            onPress={() => navigation.goBack()}
+          >
+            <ChevronLeftIcon size={24} style={tw("text-black")} />
+          </TouchableOpacity>
+        </View>
         <View className={"flex-row justify-between items-center py-4"}>
           <Text className={"font-semibold text-xl"}>Orders</Text>
           <Menu

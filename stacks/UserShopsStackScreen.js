@@ -15,6 +15,8 @@ import EditProduct from "../screens/EditProductScreen";
 import AddOfferScreen from "../screens/AddOfferScreen";
 import EditShop from "../screens/EditShopScreen";
 import ReviewsScreen from "../screens/ReviewsScreen";
+import EditProductScreen from "../screens/EditProductScreen";
+import LocationScreen from "../screens/LocationScreen";
 
 const UserShopsStack = createNativeStackNavigator();
 
@@ -47,10 +49,14 @@ const UserShopsStackScreen = () => {
         name={"OrderDetails"}
         component={OrderDetailsScreen}
       />
-      <UserShopsStack.Screen name={"EditProduct"} component={EditProduct} />
+      <UserShopsStack.Screen
+        name={"EditProduct"}
+        component={EditProductScreen}
+      />
       <UserShopsStack.Screen name={"AddOffer"} component={AddOfferScreen} />
       <UserShopsStack.Screen name={"EditShop"} component={EditShop} />
       <UserShopsStack.Screen name={"Reviews"} component={ReviewsScreen} />
+      <UserShopsStack.Screen name={"Location"} component={LocationScreen} />
     </UserShopsStack.Navigator>
   );
 };
